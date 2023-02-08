@@ -61,6 +61,18 @@ class Motor:
                     GPIO.output(pins.forward_pin, GPIO.LOW)
                     GPIO.output(pins.backward_pin, GPIO.LOW)
                     pins.pwm.ChangeDutyCycle(0)
+
+        elif type(speed) is list:
+            if len(speed) != 2:
+                raise ValueError("Speed list must have 2 elements")
+            sp = {
+                "UL": speed[0]+speed[1]/2,
+                "LL": speed[0]+speed[1]/2,
+                "UR": speed[0]-speed[1]/2,
+                "LR": speed[0]-speed[1]/2
+            }
+            self.set_speed(sp)
+
         elif type(speed) is int:
             sp = {
                 "UL": speed,
@@ -69,7 +81,11 @@ class Motor:
                 "LR": speed
             }
             self.set_speed(sp)
-
+    
+    def forward_distance(self, speed, t):
+        self.set_speed(speed)
+        time.sleep(t)
+        self.set_speed(0)
 
             
 if __name__ == "__main__":
@@ -82,7 +98,7 @@ if __name__ == "__main__":
         "LR": 20
     }
 
-    motors.set_speed(speed)
+    motors.set_speed([0,100])
 
     time.sleep(1)
 
