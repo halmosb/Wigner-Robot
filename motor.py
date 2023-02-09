@@ -1,11 +1,9 @@
 import RPi.GPIO as GPIO
 import time
 
-
-
 class Motor:
     """
-    
+    The movements of the robot.
     """
 
     class Pin:
@@ -39,12 +37,31 @@ class Motor:
         }
 
     def __del__(self):
+        """
+        Stops the motion and cleans the GPIO ports.
+        """
+
         self.set_speed(0)
         GPIO.cleanup()
 
     def set_speed(self, speed):
         """
+        Start the motors.
+
+        Parameters
+        ----------
+        speed : list of float
+            The first number sets the forward speed, the second sets the speed of the turning
+        
+        Examples
+        --------
+        >>> set_speed([75, 0])
+        # Starts moving forward with a speed of 75 (the speed ranges from 0 to 100)
+
+        >>> set_speed(0)
+        # Stops the motion
         """
+
         if type(speed) is dict:
             for name, pins in self.motors.items():
                 sp = speed[name]
@@ -83,6 +100,22 @@ class Motor:
             self.set_speed(sp)
     
     def forward_distance(self, speed, t):
+        """
+        Start the motor and moves for a given amount of time.
+        
+        Parameters
+        ----------
+        speed : array of floarts or float
+            The same as in the set_speed() function
+        t : float
+            The time in seconds for the motion
+
+        Examples
+        --------
+        >>> forward_distance(self, [75, 0], 2)
+        # Moves forward with a speed of 75 for 2 seconds.
+        """
+
         self.set_speed(speed)
         time.sleep(t)
         self.set_speed(0)
