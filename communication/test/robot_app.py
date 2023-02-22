@@ -40,12 +40,14 @@ def video_feed():
     _, buffer = cv2.imencode('.jpg', frame_cv)
     frame = buffer.tobytes()
 
-    return (buffer)
+    return str(buffer)
 
-
+@app.route("/")
+def index():
+    return "Hello"
     
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug = True)
+    app.run(host='0.0.0.0', debug=True)
 
     #vid.release()
