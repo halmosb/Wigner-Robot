@@ -84,14 +84,14 @@ class UDPwebcam_receiver :
         num_chunks = -1
         while self.control:
             message, _ = self.sock.recvfrom(self.bufsize)
-            print(message)
+            #print(message)
             if message.startswith(self.startCode):
                 self.header = json.loads(message.decode('utf-8').rstrip('a'))
                 jpglen=self.header['len']
                 num_chunks = self.header['nframes']
                 self.bufsize = self.header['bufsize']
                 chunks = []
-                print('Got start')
+                #print('Got start')
 
             else:
                 chunks.append(message)
