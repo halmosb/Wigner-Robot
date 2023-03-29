@@ -36,6 +36,7 @@ class UDPwebcam_sender :
             ret, frame = self.cam.read()
             if ret:
                 success, jpgimage = cv.imencode('.jpg', frame)
+                jpgimage = jpgimage.reshape(-1)
                 nframes = int(len(jpgimage)/self.bufsize)+1
                 self.info.update({
                     'len': len(jpgimage),
@@ -83,13 +84,15 @@ class UDPwebcam_receiver :
         num_chunks = -1
         while self.control:
             message, _ = self.sock.recvfrom(self.bufsize)
+            print(message)
             if message.startswith(self.startCode):
                 self.header = json.loads(message.decode('utf-8').rstrip('a'))
                 jpglen=self.header['len']
                 num_chunks = self.header['nframes']
                 self.bufsize = self.header['bufsize']
                 chunks = []
-                #print('Got start')
+                print('Got start')
+
             else:
                 chunks.append(message)
             
