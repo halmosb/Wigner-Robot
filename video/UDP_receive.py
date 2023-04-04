@@ -25,7 +25,7 @@ def plotter(run, rec, fps_frame= 50) :
             break
     cv.destroyAllWindows()
 
-receiver = UDPwebcam_receiver()
+receiver = UDPwebcam_receiver(IP='192.168.137.1')
 receiver.start()
 
 rr=True
