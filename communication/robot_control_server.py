@@ -3,6 +3,33 @@ import json
 import keyboard
 import numpy as np
 import time
+import cv2 as cv
+from tkinter import Tk, Canvas
+from threading import Thread
+
+from UDPwebcam import UDPwebcam_receiver
+
+def plotter(run, rec, fps_frame= 50) :
+    t0 = time.time()
+    nframe = 0  # the received frames
+    fps =0
+    while run():
+        frame = rec.queue.get()
+        #print(rec.header)
+        nframe +=1
+        fps_rate = 1/nframe + 1/fps_frame
+        t1 = time.time()
+        fps = fps_rate/(t1-t0) + (1-fps_rate)*fps
+        t0=t1
+        cv.imshow('recv', frame)
+        cv.setWindowTitle('recv', f'received video, FPS={fps:.1f}, shape={rec.header["shape"]}')
+        char = cv.waitKey(1)
+        if char & 0xFF == ord('q'):
+            break
+        else:
+            print(char)
+    cv.destroyAllWindows()
+
 
 # Set up a TCP/IP server
 tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,8 +45,26 @@ message = 'start'
 
 speed  = np.array([0,0], dtype=float)
 kin = ' '
+
+receiver = UDPwebcam_receiver(IP='192.168.137.1')
+receiver.start()
+
+rr=True
+x = Thread(target=plotter, args=(lambda: rr, receiver))
+x.start()
+
+charin = ''
+
+receiver.start()
+
+
+
 while kin != 'q':
     kin = keyboard.read_key()
+    if receiver.control:
+        receiver.stop()
+    else:
+        receiver.start()
     if kin == 'up' :
         dv = np.array([1,0], dtype=float)
     elif kin == 'down' :
@@ -48,4 +93,8 @@ while kin != 'q':
 
 connection.close()
 tcp_socket.close()
+
+rr=False
+x.join()
+receiver.stop()
  
