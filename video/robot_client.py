@@ -1,4 +1,5 @@
 import motor
+import sensor
 import socket
 import json
 import copy
@@ -14,6 +15,7 @@ with open('settings.json') as f:
         print(speed)
 """
 motors = motor.Motor()
+sensors = sensor.Sensor()
 #motors = Motor(settings=settings)
 prevspeed=[]
 
