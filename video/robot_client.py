@@ -25,18 +25,20 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
     tcp_socket.connect((settings['IP'], settings['control_port']))
     while True:
         data = tcp_socket.recv(1024).decode('utf-8')
-        try:
-            dict = json.loads(data)
-            print(dict)
-            prevdict = copy.deepcopy(dict)
-            if dict['message'] == 'q':
-                break
-            speed = dict['speed']
-            if speed != prevspeed:
-                prevspeed = speed
-                motors.set_speed(speed)
-        except:
+        if len(data) == 0:
             break
+        if len(data) > 45:
+            print('{'+data.split('}{')[-1])
+            continue
+        dict = json.loads(data)
+        print(dict)
+        prevdict = copy.deepcopy(dict)
+        if dict['message'] == 'q':
+            break
+        speed = dict['speed']
+        if speed != prevspeed:
+            prevspeed = speed
+            motors.set_speed(speed)
 #print("Closing socket")
 tcp_socket.close()
 sender.stop()

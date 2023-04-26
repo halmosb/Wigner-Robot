@@ -25,6 +25,7 @@ class sendChanel() :
         self.back_dec = settings['back_dec']
         self.maxBackSpeed = settings['maxBackSpeed']
         self.turnV = settings['turnV']
+        self.maxturnV = settings['maxturnV']
     
         self.tcp_socket.listen(1)
         print("Waiting for connection")
@@ -41,10 +42,8 @@ class sendChanel() :
             self.speed= [0,0]
             self.sendControl()
             return
-        print(f'accelerateCar: {sgn}, {self.speed}, {self.acc}')
         
         if self.speed[0] >= 0:
-            print(f'accelerateCar: positive speed')
             if sgn > 0:
                 self.speed[0] += self.acc
                 if self.speed[0] > self.maxSpeed:
@@ -58,6 +57,7 @@ class sendChanel() :
                     self.speed[0] = -self.maxBackSpeed
             else :
                 self.speed[0] += self.back_dec
+        print(f'accelerateCar: {sgn}, {self.speed}, {self.acc}')
         self.sendControl()
     
     def breakCar(self) : 
@@ -69,9 +69,13 @@ class sendChanel() :
         if sgn == 0:
             self.speed[1] = 0
         elif sgn > 0:
-            self.speed[1] = self.turnV
+            self.speed[1] += self.turnV
+            if self.speed[1] > self.maxturnV:
+                self.speed[1] = self.maxturnV
         else:
-            self.speed[1] = -self.turnV
+            self.speed[1] -= self.turnV
+            if self.speed[1] < -self.maxturnV:
+                self.speed[1] = -self.maxturnV
         self.sendControl()
 
     def sendControl(self, message="speed") :
@@ -83,6 +87,8 @@ class sendChanel() :
             self.connection.sendall(json.dumps(dict).encode('utf-8'))
         except:
             print('send failed')
+            #if input("Stop?")=="I":
+            exit(216)
 
 class receiveChanel() :
     def __init__(self, root, settings) :
@@ -166,7 +172,6 @@ root.title("Image Viewer")
 
 sc = sendChanel(settings)
 rc = receiveChanel(root, settings)
-root.bind("<KeyPress>", lambda event: handle_key_press(event, root, sc, rc))
-root.bind("<KeyRelease>", lambda event: handle_key_release(event, root, sc, rc))
+root.bind("<Key>", lambda event: handle_key_press(event, root, sc, rc))
 
 root.mainloop()

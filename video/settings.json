@@ -12,6 +12,7 @@
     "back_acc" : 5,
     "back_dec" : 20,
     "maxBackSpeed" : 20,
-    "turnV" : 20
+    "turnV" : 20,
+    "maxturnV" : 20
 
 }
