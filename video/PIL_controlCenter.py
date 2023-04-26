@@ -1,0 +1,172 @@
+from tkinter import *
+from PIL import Image, ImageTk, ImageDraw
+import numpy as np
+from threading import Thread
+import time
+import cv2
+from UDPwebcam import UDPwebcam_receiver
+import socket
+import json
+import os
+
+class sendChanel() :
+    def __init__(self, settings) :
+        print("initiate send channel")
+        self.tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
+        server_address = (settings['IP'], settings['control_port'])
+        self.tcp_socket.bind(server_address)
+        
+        self.speed = [0,0]
+        self.acc = settings['acc']
+        self.dec = settings['dec']
+        self.maxSpeed = settings['maxSpeed']
+        self.back_acc = settings['back_acc']
+        self.back_dec = settings['back_dec']
+        self.maxBackSpeed = settings['maxBackSpeed']
+        self.turnV = settings['turnV']
+    
+        self.tcp_socket.listen(1)
+        print("Waiting for connection")
+        self.connection, client = self.tcp_socket.accept()
+    
+    def close(self) :
+        print("close send channel")
+        self.sendControl(message='end')
+        self.connection.close()
+        self.tcp_socket.close()
+
+    def accelerateCar(self, sgn) :
+        if sgn == 0:
+            self.speed= [0,0]
+            self.sendControl()
+            return
+        print(f'accelerateCar: {sgn}, {self.speed}, {self.acc}')
+        
+        if self.speed[0] >= 0:
+            print(f'accelerateCar: positive speed')
+            if sgn > 0:
+                self.speed[0] += self.acc
+                if self.speed[0] > self.maxSpeed:
+                    self.speed[0] = self.maxSpeed
+            else :
+                self.speed[0] -= self.dec
+        if self.speed[0] < 0:
+            if sgn < 0:
+                self.speed[0] -= self.back_acc
+                if self.speed[0] < -self.maxBackSpeed:
+                    self.speed[0] = -self.maxBackSpeed
+            else :
+                self.speed[0] += self.back_dec
+        self.sendControl()
+    
+    def breakCar(self) : 
+        self.speed= [0,0]
+        self.sendControl()
+
+    def turnCar(self, sgn) :
+        print(f'turnCar: {sgn}, {self.speed}')
+        if sgn == 0:
+            self.speed[1] = 0
+        elif sgn > 0:
+            self.speed[1] = self.turnV
+        else:
+            self.speed[1] = -self.turnV
+        self.sendControl()
+
+    def sendControl(self, message="speed") :
+        try:
+            dict = {
+                'message' : message,
+                'speed' : self.speed
+            }
+            self.connection.sendall(json.dumps(dict).encode('utf-8'))
+        except:
+            print('send failed')
+
+class receiveChanel() :
+    def __init__(self, root, settings) :
+        print("initiate receive channel")
+
+        self.receiver = UDPwebcam_receiver(bufsize = settings['bufsize'], IP = settings['IP'], port= settings['webcam_port'])
+        self.receiver.start()
+
+        self.root=root
+        self.imlabel = Label(self.root)
+        self.imlabel.pack()
+
+        self.L= settings['window_size']
+        self.run = True
+        self.thread = Thread(target=self.updateImage)
+        self.thread.start()
+
+        self.textlabel = Label(self.root, text=f'webcam')
+        self.textlabel.pack(side='left')
+ 
+    def close(self) :
+        print("close receive channel")
+
+        self.run = False
+        self.thread.join()
+        self.receiver.stop()
+
+    def updateImage(self) :
+        while self.run:
+            frame = self.receiver.queue.get()
+            image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            self.showImage(image)
+
+    def showImage(self,  image) :
+        newsize = [int(n) for n in np.array(image.size)/np.max(np.array(image.size)/self.L)]
+        image = image.resize(newsize)
+        if self.run:
+            photo = ImageTk.PhotoImage(image)
+
+            self.imlabel.configure(image=photo)
+            self.imlabel.image = photo
+
+
+def handle_key_press(event, root, sendCh, recCh):
+    if event.keysym == 'Escape' or event.keysym == 'q':
+        recCh.close()
+        sendCh.close()
+        root.destroy()
+        return
+    if event.keysym == 'Down':
+        sendCh.accelerateCar(-1)
+        recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}')
+        return
+    if event.keysym == 'Up':
+        sendCh.accelerateCar(1)
+        recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}')
+        return
+    if event.keysym == 'Right':
+        sendCh.turnCar(1)
+        recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, turn right')
+        return
+    if event.keysym == 'Left':
+        sendCh.turnCar(-1)
+        recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, turn left')
+        return
+    if event.keysym == 'space':
+        sendCh.breakCar()
+        recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, break')
+
+def handle_key_release(event, root, sendCh, recCh):
+    sendCh.turnCar(0)
+
+os.system('xset r off')
+
+# Create the main window
+with open('settings.json') as f:
+    settings = json.load(f)
+
+root = Tk()
+root.title("Image Viewer")
+
+sc = sendChanel(settings)
+rc = receiveChanel(root, settings)
+root.bind("<KeyPress>", lambda event: handle_key_press(event, root, sc, rc))
+root.bind("<KeyRelease>", lambda event: handle_key_release(event, root, sc, rc))
+
+root.mainloop()
