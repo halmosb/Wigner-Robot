@@ -23,13 +23,19 @@ def plotter(run, rec, fps_frame= 50) :
         t0=t1
         cv.imshow('recv', frame)
         cv.setWindowTitle('recv', f'received video, FPS={fps:.1f}, shape={rec.header["shape"]}')
-        char = cv.waitKey(1)
-        if char & 0xFF == ord('q'):
+        mas = cv.waitKey(1)
+        if mas & 0xFF == ord('q'):
             break
         else:
-            print(char)
+            print(mas)
     cv.destroyAllWindows()
 
+receiver = UDPwebcam_receiver(IP='192.168.137.1')
+receiver.start()
+
+rr=True
+x = Thread(target=plotter, args=(lambda: rr, receiver))
+x.start()
 
 # Set up a TCP/IP server
 tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -49,15 +55,8 @@ kin = ' '
 receiver = UDPwebcam_receiver(IP='192.168.137.1')
 receiver.start()
 
-rr=True
-x = Thread(target=plotter, args=(lambda: rr, receiver))
-x.start()
 
-charin = ''
-
-receiver.start()
-
-
+"""
 
 while kin != 'q':
     kin = keyboard.read_key()
@@ -90,7 +89,8 @@ while kin != 'q':
 #    except:
 #        print('send failed')
 
-
+"""
+receiver.start()
 connection.close()
 tcp_socket.close()
 

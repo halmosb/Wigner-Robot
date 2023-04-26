@@ -155,7 +155,7 @@ def handle_key_press(event, root, sendCh, recCh):
 def handle_key_release(event, root, sendCh, recCh):
     sendCh.turnCar(0)
 
-os.system('xset r off')
+#os.system('xset r off')
 
 # Create the main window
 with open('settings.json') as f:

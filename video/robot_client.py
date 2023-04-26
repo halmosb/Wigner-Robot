@@ -1,4 +1,4 @@
-#import motor
+import motor
 import socket
 import json
 import copy
@@ -7,14 +7,14 @@ from UDPwebcam import UDPwebcam_sender
 with open('settings.json') as f:
     settings = json.load(f)
 
-class Motor():
+"""class Motor():
     def __init__(self, settings):
         print(f'my settings: {settings}')
     def set_speed(self, speed) :
         print(speed)
-
-#motors = motor.Motor()
-motors = Motor(settings=settings)
+"""
+motors = motor.Motor()
+#motors = Motor(settings=settings)
 prevspeed=[]
 
 

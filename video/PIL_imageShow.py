@@ -24,8 +24,8 @@ textlabel = Label(root, text="show a video")
 textlabel.pack()
 
 # Load the image using PIL
-path = '/home/jakovac/Work/WignerAI/Robot/Wigner-Robot/video/Images/'
-images = dir_list = os.listdir(path)
+path = 'Images/'
+images = os.listdir(path)
 imcnt = 0
 showImage(imlabel, Image.open(path + images[imcnt]), L=500)
 

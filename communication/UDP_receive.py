@@ -23,6 +23,7 @@ def plotter(run, rec, fps_frame= 50) :
         cv.setWindowTitle('recv', f'received video, FPS={fps:.1f}, shape={rec.header["shape"]}')
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
+
     cv.destroyAllWindows()
 
 receiver = UDPwebcam_receiver(IP='192.168.137.1')
