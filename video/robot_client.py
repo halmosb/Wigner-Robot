@@ -28,8 +28,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
         if len(data) == 0:
             break
         if len(data) > 45:
-            print('{'+data.split('}{')[-1])
-            continue
+            print("Fixed data")
+            data = '{'+data.split('}{')[-1]
         dict = json.loads(data)
         print(dict)
         prevdict = copy.deepcopy(dict)
