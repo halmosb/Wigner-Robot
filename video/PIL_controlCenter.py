@@ -121,7 +121,8 @@ class receiveChanel() :
         self.textlabel = Label(self.root, text=f'webcam')
         self.textlabel.pack(side='left')
 
-        self.dislabel = Label(self.root, text = f'd = {self.receiver.dist}')
+        self.dislabel = Label(self.root, text = f'd = {self.receiver.dist} cm')
+        self.dislabel.pack(side = "right")
  
     def close(self) :
         print("close receive channel")
@@ -145,7 +146,7 @@ class receiveChanel() :
             self.imlabel.configure(image=photo)
             self.imlabel.image = photo
 
-            self.dislabel.configure(text = f'd = {self.receiver.dist}')
+            self.dislabel.configure(text = f'd = {self.receiver.dist:.1f} cm')
 
 
 def handle_key_press(event, root, sendCh, recCh):
@@ -172,6 +173,7 @@ def handle_key_press(event, root, sendCh, recCh):
         return
     if event.keysym == 'space':
         sendCh.breakCar()
+        sendCh.reset_servo()
         recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, break')
     if event.keysym == "a":
         sendCh.turn_servo([0,1,0])
@@ -187,6 +189,12 @@ def handle_key_press(event, root, sendCh, recCh):
         sendCh.turn_servo([-1,0,0])
     if event.keysym == 'm':
         sendCh.sendControl('measure')
+    if event.keysym == 'v':
+        sendCh.sendControl('violent')
+    if event.keysym == 'n':
+        sendCh.sendControl('nino')
+    if event.keysym == 'b':
+        sendCh.sendControl('masiksong')
 
 def handle_key_release(event, root, sendCh, recCh):
     sendCh.turnCar(0)
