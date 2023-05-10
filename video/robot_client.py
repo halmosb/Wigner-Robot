@@ -5,9 +5,10 @@ import json
 import copy
 from UDPwebcam import UDPwebcam_sender
 import servo
+import sensor
 
 servMotors = servo.Servo()
-
+ultar = sensor.Sensor()
 with open('settings.json') as f:
     settings = json.load(f)
 
@@ -36,6 +37,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
         prevdictr = copy.deepcopy(dictr)
         if dictr['message'] == 'q':
             break
+        if dictr['message'] =='measure':
+            sender.dist = sensors.distance()
         speed = dictr['speed']
         if speed != prevspeed:
             prevspeed = speed

@@ -9,11 +9,12 @@ import json
 
 class UDPwebcam_sender :
     control = True
-    def __init__(self, shape=None, bufsize=1024, IP='127.0.0.1', port=65534) :
+    def __init__(self, shape=None, bufsize=1024, IP='127.0.0.1', port=65534):
         #open socket
         self.addr=(IP, port)
         self.bufsize = bufsize
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.dist = 0
 
         # open webcam
         self.cam = cv.VideoCapture(0)
@@ -40,7 +41,8 @@ class UDPwebcam_sender :
                 nframes = int(len(jpgimage)/self.bufsize)+1
                 self.info.update({
                     'len': len(jpgimage),
-                    'nframes' : nframes
+                    'nframes' : nframes,
+                    'distance': self.dist
                 })
                 #prepare metadata header
                 metadata = json.dumps(self.info).encode('utf-8')
@@ -70,6 +72,7 @@ class UDPwebcam_receiver :
     def __init__(self, bufsize=2048, IP='127.0.0.1', port=65534) :
         self.control = True
         self.queue = Queue()
+        self.dist = 0
 
         #open socket
         self.addr=(IP, port)
@@ -90,6 +93,7 @@ class UDPwebcam_receiver :
                 jpglen=self.header['len']
                 num_chunks = self.header['nframes']
                 self.bufsize = self.header['bufsize']
+                self.dist = self.header["distance"]
                 chunks = []
                 #print('Got start')
 
