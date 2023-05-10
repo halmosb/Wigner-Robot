@@ -16,7 +16,7 @@ motors = motor.Motor()
 sensors = sensor.Sensor()
 #motors = Motor(settings=settings)
 prevspeed = []
-prevangles = []
+prevangles = [90,90,90]
 
 
 sender = UDPwebcam_sender(bufsize= settings['bufsize'], IP= settings['IP'], port=settings['webcam_port'])
@@ -41,11 +41,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
             prevspeed = speed
             motors.set_speed(speed)
         angles = dictr["angles"]
-        if angles != prevangles:
-            prevangles = angles
-            for i in range(3):
+        for i in range(3):
+            if angles[i] != prevangles[i]:
                 name = list(servMotors.names.keys())[i]
                 servMotors.servoPulse(name,angles[i])
+                prevangles[i] = angles[i]
 
 #print("Closing socket")
 tcp_socket.close()

@@ -16,7 +16,7 @@ class Servo:
             "vertical" : self.camera_vertical
         }
         self.repeat = {
-            "us" : 10,
+            "us" : 5,
             "horizontal" : 5,
             "vertical" : 5
         }

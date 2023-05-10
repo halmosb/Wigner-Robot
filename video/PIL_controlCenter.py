@@ -95,7 +95,7 @@ class sendChanel() :
             exit(216)
 
     def turn_servo(self, directions):
-        self.angles = [self.angles[i]+self.dangle*directions[i] for i in range(3)]
+        self.angles = [max(min(self.angles[i]+self.dangle*directions[i], 180), 0) for i in range(3)]
         self.sendControl()
     
     def reset_servo(self):
@@ -169,13 +169,13 @@ def handle_key_press(event, root, sendCh, recCh):
     if event.keysym == 'space':
         sendCh.breakCar()
         recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, break')
-    if event.keysym == "w":
-        sendCh.turn_servo([0,1,0])
-    if event.keysym == "s":
-        sendCh.turn_servo([0,-1,0])
     if event.keysym == "a":
-        sendCh.turn_servo([0,0, 1])
+        sendCh.turn_servo([0,1,0])
     if event.keysym == "d":
+        sendCh.turn_servo([0,-1,0])
+    if event.keysym == "w":
+        sendCh.turn_servo([0,0, 1])
+    if event.keysym == "s":
         sendCh.turn_servo([0,0,-1])
     if event.keysym == "o":
         sendCh.turn_servo([1,0,0])
