@@ -82,12 +82,13 @@ class sendChanel() :
 
     def sendControl(self, message="speed") :
         try:
-            dict = {
+            dictr = {
                 'message' : message,
                 'speed' : self.speed,
                 "angles" : self.angles
             }
-            self.connection.sendall(json.dumps(dict).encode('utf-8'))
+            print(json.dumps(dictr).encode('utf-8'))
+            self.connection.sendall(json.dumps(dictr).encode('utf-8'))
         except:
             print('send failed')
             #if input("Stop?")=="I":
