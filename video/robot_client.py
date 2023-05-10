@@ -8,66 +8,7 @@ import servo
 import sensor
 import buzzer
 
-song =  [
-    (330, 0.5),  # E4 for half a second
-    (370, 0.5),  # F#4 for half a second
-    (415, 0.5),  # G#4 for half a second
-    (330, 0.5),  # E4 for half a second
-    (370, 0.5),  # F#4 for half a second
-    (415, 0.5),  # G#4 for half a second
-    (330, 0.5),  # E4 for half a second
-    (370, 0.5),  # F#4 for half a second
-    (415, 0.5),  # G#4 for half a second
-    (330, 0.5),  # E4 for half a second
-    (370, 0.5),  # F#4 for half a second
-    (415, 0.5),  # G#4 for half a second
-    (330, 0.5),  # E4 for half a second
-    (370, 0.5),  # F#4 for half a second
-    (415, 0.5),  # G#4 for half a second
-    (440, 1),    # A4 for one second
-    (440, 1),    # A4 for one second
-    (440, 1),    # A4 for one second
-    (415, 1),    # G#4 for one second
-    (370, 1),    # F#4 for one second
-    (330, 1),    # E4 for one second
-    (440, 1),    # A4 for one second
-    (440, 1),    # A4 for one second
-    (440, 1),    # A4 for one second
-    (415, 1),    # G#4 for one second
-    (370, 1),    # F#4 for one second
-    (330, 1),    # E4 for one second
-    (370, 0.5),  # F#4 for half a second
-    (415, 0.5),  # G#4 for half a second
-    (494, 1),    # B4 for one second
-    (494, 1),    # B4 for one second
-    (494, 1),    # B4 for one second
-    (440, 1),    # A4 for one second
-    (370, 1),    # F#4 for one second
-    (330, 1),    # E4 for one second
-    (494, 1),    # B4 for one second
-    (494, 1),    # B4 for one second
-    (494, 1),    # B4 for one second
-    (440, 1),    # A4 for one second
-    (370, 1),    # F#4 for one second
-    (330, 1),    # E4 for one second
-    (370, 0.5),  # F#4 for half a second
-    (415, 0.5),  # G#4 for half a second
-    (330, 1)     # E4 for one
-]
 
-masiksong = [
-    (440, 0.5),  # A4 for half a second
-    (494, 0.5),  # B4 for half a second
-    (523, 1),    # C5 for one second
-    (587, 1),    # D5 for one second
-    (659, 1),    # E5 for one second
-    (587, 2),    # D5 for two seconds
-    (523, 2),    # C5 for two seconds
-    (440, 2),    # A4 for two seconds
-    (392, 2),    # G4 for two seconds
-    (349, 2),    # F4 for two seconds
-    (293, 4)     # D4 for four seconds
-]
 
 servMotors = servo.Servo()
 ultar = sensor.Sensor()
@@ -104,11 +45,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
         if dictr['message'] =='measure':
             sender.dist = sensors.distance()
         if dictr['message'] == "violent":
-            bz.play(song)
+            bz.play('mexican')
         if dictr['message'] == "nino":
-            bz.play([[400,1],[262,1],[400,1],[262,1],[400,1],[262,1],[400,1],[262,1]])
-        if dictr['message'] == "masiksong":
-            bz.play(masiksong)
+            bz.play('nino')
+        if dictr['message'] == "supermario":
+            bz.play('supermario')
         speed = dictr['speed']
         if speed != prevspeed:
             prevspeed = speed

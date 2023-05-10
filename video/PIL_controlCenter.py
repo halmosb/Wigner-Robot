@@ -194,7 +194,7 @@ def handle_key_press(event, root, sendCh, recCh):
     if event.keysym == 'n':
         sendCh.sendControl('nino')
     if event.keysym == 'b':
-        sendCh.sendControl('masiksong')
+        sendCh.sendControl('supermario')
 
 def handle_key_release(event, root, sendCh, recCh):
     sendCh.turnCar(0)

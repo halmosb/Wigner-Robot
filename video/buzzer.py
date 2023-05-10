@@ -1,13 +1,18 @@
 import RPi.GPIO as GPIO
 import time
 from threading import Thread
+import json
+
 
 
 class Buzzer():
-    def __init__(self, volume = 50, tempo = 120):
+    def __init__(self, volume = 50, tempo = 60):
         self.pin = 16
         self.volume = volume
         self.tempo = tempo
+        
+        with open('songs.json') as f:
+            self.songs = json.load(f)
 
 
         GPIO.setmode(GPIO.BCM)       # Numbers GPIOs by physical location
@@ -22,6 +27,9 @@ class Buzzer():
         self.buzz.stop()
 
     def play(self, song):
-        self.song = song
+        try:
+            self.song = self.songs[song]
+        except: 
+            self.song=[[880,5]]
         self.thread = Thread(target = self.playlist)
         self.thread.start()
