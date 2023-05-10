@@ -4,20 +4,19 @@ import socket
 import json
 import copy
 from UDPwebcam import UDPwebcam_sender
+import servo
+
+servMotors = servo.Servo()
 
 with open('settings.json') as f:
     settings = json.load(f)
 
-"""class Motor():
-    def __init__(self, settings):
-        print(f'my settings: {settings}')
-    def set_speed(self, speed) :
-        print(speed)
-"""
+
 motors = motor.Motor()
 sensors = sensor.Sensor()
 #motors = Motor(settings=settings)
-prevspeed=[]
+prevspeed = []
+prevangles = []
 
 
 sender = UDPwebcam_sender(bufsize= settings['bufsize'], IP= settings['IP'], port=settings['webcam_port'])
@@ -32,15 +31,22 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
         if len(data) > 45:
             print("Fixed data")
             data = '{'+data.split('}{')[-1]
-        dict = json.loads(data)
-        print(dict)
-        prevdict = copy.deepcopy(dict)
-        if dict['message'] == 'q':
+        dictr = json.loads(data)
+        print(dictr)
+        prevdictr = copy.deepcopy(dictr)
+        if dictr['message'] == 'q':
             break
-        speed = dict['speed']
+        speed = dictr['speed']
         if speed != prevspeed:
             prevspeed = speed
             motors.set_speed(speed)
+        angles = dictr["angles"]
+        if angles != prevangles:
+            prevangles = angles
+            for i in range(3):
+                name = list(servMotors.names.keys())[i]
+                servMotors.servoPulse(name,angles[i])
+
 #print("Closing socket")
 tcp_socket.close()
 sender.stop()

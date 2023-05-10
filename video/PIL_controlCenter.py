@@ -18,6 +18,8 @@ class sendChanel() :
         self.tcp_socket.bind(server_address)
         
         self.speed = [0,0]
+        self.angles = settings["default-angles"]
+        self.dangle = settings["dangle"]
         self.acc = settings['acc']
         self.dec = settings['dec']
         self.maxSpeed = settings['maxSpeed']
@@ -82,13 +84,22 @@ class sendChanel() :
         try:
             dict = {
                 'message' : message,
-                'speed' : self.speed
+                'speed' : self.speed,
+                "angles" : self.angles
             }
             self.connection.sendall(json.dumps(dict).encode('utf-8'))
         except:
             print('send failed')
             #if input("Stop?")=="I":
             exit(216)
+
+    def turn_servo(self, directions):
+        self.angles = [self.angles[i]+self.dangle*directions[i] for i in range(3)]
+        self.sendControl()
+    
+    def reset_servo(self):
+        self.angles = settings["default-angles"]
+        self.sendControl()
 
 class receiveChanel() :
     def __init__(self, root, settings) :
@@ -157,6 +168,18 @@ def handle_key_press(event, root, sendCh, recCh):
     if event.keysym == 'space':
         sendCh.breakCar()
         recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, break')
+    if event.keysym == "w":
+        sendCh.turn_servo([0,1,0])
+    if event.keysym == "s":
+        sendCh.turn_servo([0,-1,0])
+    if event.keysym == "a":
+        sendCh.turn_servo([0,0, 1])
+    if event.keysym == "d":
+        sendCh.turn_servo([0,0,-1])
+    if event.keysym == "o":
+        sendCh.turn_servo([1,0,0])
+    if event.keysym == "p":
+        sendCh.turn_servo([-1,0,0])
 
 def handle_key_release(event, root, sendCh, recCh):
     sendCh.turnCar(0)
