@@ -6,10 +6,9 @@ import json
 
 
 class Buzzer():
-    def __init__(self, volume = 50, tempo = 60):
+    def __init__(self, volume = 50):
         self.pin = 16
         self.volume = volume
-        self.tempo = tempo
         
         with open('songs.json') as f:
             self.songs = json.load(f)
@@ -23,7 +22,7 @@ class Buzzer():
         self.buzz.start(self.volume)
         for i in range(0, len(self.song)):     # Play song 1
             self.buzz.ChangeFrequency(self.song[i][0]) # Change the frequency along the song note
-            time.sleep(self.song[i][1] * 60/self.tempo)
+            time.sleep(self.song[i][1])
         self.buzz.stop()
 
     def play(self, song):
