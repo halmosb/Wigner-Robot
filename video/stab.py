@@ -27,7 +27,7 @@ def stabilize_video(input_file, output_file):
     prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
 
     # Initialize the previous good points
-    prev_points = cv2.goodFeaturesToTrack(prev_gray, maxCorners=20, qualityLevel=0.01, minDistance=15)
+    prev_points = cv2.goodFeaturesToTrack(prev_gray, maxCorners=10, qualityLevel=0.01, minDistance=3)
 
     # Loop through the frames and stabilize the video
     while True:
@@ -66,12 +66,12 @@ def stabilize_video(input_file, output_file):
 
 
 # Example usage
-input_file = "input_video.avi"
-output_file = "output_video.avi"
-m0 = "m0.avi"
-stabilize_video(input_file, m0)
+input_file = "input_video2.avi"
+output_file = "output_video4.avi"
+stabilize_video(input_file, output_file)
+"""
 for i in range(10):
     stabilize_video(f'm{i}.avi', f'm{i+1}.avi')
     print(i)
 stabilize_video('m10.avi', output_file)
-
+"""
