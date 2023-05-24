@@ -212,7 +212,7 @@ def handle_key_press(event, root, sendCh, recCh):
         if recCh.is_record:
             recCh.recorded_video.release()
         else:
-            recCh.recorded_video = cv2.VideoWriter(f'../video/robot-video-cam-{time.time()}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 60, (640,480))
+            recCh.recorded_video = cv2.VideoWriter(f'../video/robot-video-cam-{time.time()}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 30, (640,480))
         recCh.is_record = not recCh.is_record
         recCh.rec_label.configure(text = f'recording = {recCh.is_record}')
 
