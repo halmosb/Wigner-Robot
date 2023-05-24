@@ -18,7 +18,7 @@ with open('settings.json') as f:
     settings = json.load(f)
 
 
-motors = motor.Motor()
+motors = motor.Motor(frequency=settings["maxSpeed"])
 sensors = sensor.Sensor()
 #motors = Motor(settings=settings)
 prevspeed = []

@@ -103,9 +103,9 @@ class UDPwebcam_receiver :
             if len(chunks) == num_chunks:
                 #print("Complete image")
                 jpgrec = np.frombuffer((b''.join(chunks)), dtype=np.uint8)[:jpglen]
-                frame = cv.imdecode(jpgrec, cv.IMREAD_UNCHANGED)
+                #frame = cv.imdecode(jpgrec, cv.IMREAD_UNCHANGED)
                 self.queue.queue.clear()
-                self.queue.put(frame)
+                self.queue.put(jpgrec)
         print('Stop thread: receive')
         
 

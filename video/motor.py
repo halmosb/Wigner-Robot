@@ -63,8 +63,12 @@ class Motor:
         """
 
         if type(speed) is dict:
+            mas = max(speed.values())/self.frequency
+            mis = -min(speed.values())/self.frequency
+            factor = max(mas, mis, 1)
+
             for name, pins in self.motors.items():
-                sp = speed[name]
+                sp = int(speed[name]/factor)
                 #print(name, pins, sp)
                 if sp > 0:
                     GPIO.output(pins.backward_pin, GPIO.LOW)

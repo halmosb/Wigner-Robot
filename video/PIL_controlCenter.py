@@ -123,6 +123,14 @@ class receiveChanel() :
 
         self.dislabel = Label(self.root, text = f'd = {self.receiver.dist} cm')
         self.dislabel.pack(side = "right")
+
+        self.is_record = False
+        self.recorded_video = None
+
+        self.rec_label = Label(self.root, text = f'recording = {self.is_record}')
+        self.rec_label.pack(side = "left")
+
+
  
     def close(self) :
         print("close receive channel")
@@ -133,9 +141,14 @@ class receiveChanel() :
 
     def updateImage(self) :
         while self.run:
-            frame = self.receiver.queue.get()
+            jpgrec = self.receiver.queue.get()
+            frame = cv2.imdecode(jpgrec, cv2.IMREAD_UNCHANGED)
             image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            
             self.showImage(image)
+            if self.is_record:
+                self.recorded_video.write(np.array(frame))
+                #print(np.array(image).shape)
 
     def showImage(self,  image) :
         newsize = [int(n) for n in np.array(image.size)/np.max(np.array(image.size)/self.L)]
@@ -195,6 +208,15 @@ def handle_key_press(event, root, sendCh, recCh):
         sendCh.sendControl('nino')
     if event.keysym == 'b':
         sendCh.sendControl('supermario')
+    
+    if event.keysym == 'u':
+        if recCh.is_record:
+            recCh.recorded_video.release()
+        else:
+            recCh.recorded_video = cv2.VideoWriter(f'robot-video-cam-{time.time()}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 60, (640,480))
+        recCh.is_record = not recCh.is_record
+        recCh.rec_label.configure(text = f'recording = {recCh.is_record}')
+
 
 def handle_key_release(event, root, sendCh, recCh):
     sendCh.turnCar(0)
