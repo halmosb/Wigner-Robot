@@ -186,14 +186,13 @@ def handle_key_press(event, root, sendCh, recCh):
             pressed_l = True
         return
     if event.keysym == 'v' and pressed_b:
-        pressed_b = False
         sendCh.sendControl('buzzer', 'violent')
     if event.keysym == 'n' and pressed_b:
-        pressed_b = False
         sendCh.sendControl('buzzer', 'nino')
     if  event.keysym == 'y' and pressed_b:
-        pressed_b = False
         sendCh.sendControl('buzzer', 'supermario')
+    if event.keysym == 'c' and pressed_l:
+        sendCh.sendControl("dot", "clear")
     
     pressed_l = False
     pressed_b = False

@@ -49,15 +49,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
         if dictr['message'] == 'buzzer':
             if dictr['parameter'] == 'whole':
                 bz.play_whole()
-            if dictr['parameter'] == "violent":
-                bz.play('mexican')
-            if dictr['parameter'] == "nino":
-                bz.play('nino')
-            if dictr['parameter'] == "supermario":
-                bz.play('supermario')
+            #if dictr['parameter'] in :
+            else:
+                bz.play(dictr["parameter"])
         if dictr['message'] == "dot":
             if dictr['parameter'] == 'animation':
                 dotMatrix.animation()
+            elif dictr["parameter"] == 'clear':
+                dotMatrix.matrix_clear()
+            else:
+                dotMatrix.matrix_display(dictr["parameter"])
         speed = dictr['speed']
         if speed != prevspeed:
             prevspeed = speed
