@@ -219,11 +219,11 @@ def handle_key_press(event, root, sendCh, recCh):
         recCh.rec_label.configure(text = f'recording = {recCh.is_record}')
 
     if event.keysym == 'b':
-        pressed_b != pressed_b
+        pressed_b = not pressed_b
         pressed_l = False
     if event.keysym == 'l':
         pressed_b = False
-        pressed_l != pressed_l
+        pressed_l = not pressed_l
     if event.keysym == 'v' and pressed_b:
         pressed_b = False
         sendCh.sendControl('buzzer', 'violent')

@@ -47,7 +47,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
         if dictr['message'] =='measure':
             sender.dist = sensors.distance()
         if dictr['message'] == 'buzzer':
+            print("Got buzzer")
             if dictr['parameter'] == "violent":
+                print("got violent")
                 bz.play('mexican')
             if dictr['parameter'] == "nino":
                 bz.play('nino')
