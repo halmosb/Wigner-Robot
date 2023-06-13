@@ -6,7 +6,7 @@ class DotMatrix:
 
     def __init__(self):
 
-        print("Starting led matrix")
+        #print("Starting led matrix")
 
         self.SCLK = 4
         self.DIO  = 14
