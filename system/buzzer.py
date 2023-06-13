@@ -28,6 +28,7 @@ class Buzzer():
             if not self.running:
                 break
         self.buzz.stop()
+        self.running = False
 
     def play_whole(self):
         if self.running:
