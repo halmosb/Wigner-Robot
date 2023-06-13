@@ -260,7 +260,7 @@ with open('settings.json') as f:
     settings = json.load(f)
 
 root = Tk()
-root.title("Image Viewer")
+root.title("W. H. I. L. E. T. R. U. E.")
 
 sc = sendChanel(settings)
 rc = receiveChanel(root, settings)
