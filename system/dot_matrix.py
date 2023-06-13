@@ -92,10 +92,10 @@ if __name__ == "__main__":
 
     try:
         while True:
-            for img in ["smile", "forward", "back", "left", "right"]
-            print(img)
-            dot_matrix.matrix_display(dot_matrix.images[img])
-            time.sleep(2)
+            for img in ["smile", "forward", "back", "left", "right"]:
+                print(img)
+                dot_matrix.matrix_display(dot_matrix.images[img])
+                time.sleep(2)
 
         """
         while True:
