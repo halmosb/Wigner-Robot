@@ -96,6 +96,9 @@ class DotMatrix:
                 time.sleep(2)
                 if not self.running:
                     break
+            else:
+                continue
+            break
 
 
 
