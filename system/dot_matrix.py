@@ -8,8 +8,8 @@ class DotMatrix:
 
         print("Starting led matrix")
 
-        self.SCLK = 8
-        self.DIO  = 9
+        self.SCLK = 4
+        self.DIO  = 14
 
         with open('matricies.json') as f:
             matricies = json.load(f)
