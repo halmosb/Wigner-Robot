@@ -80,12 +80,13 @@ class sendChanel() :
                 self.speed[1] = -self.maxturnV
         self.sendControl()
 
-    def sendControl(self, message="speed") :
+    def sendControl(self, message="speed", parameter="") :
         try:
             dictr = {
                 'message' : message,
                 'speed' : self.speed,
-                "angles" : self.angles
+                "angles" : self.angles,
+                "parameter" : parameter,
             }
             print(json.dumps(dictr).encode('utf-8'))
             self.connection.sendall(json.dumps(dictr).encode('utf-8'))
@@ -162,12 +163,17 @@ class receiveChanel() :
             self.dislabel.configure(text = f'd = {self.receiver.dist:.1f} cm')
 
 
+pressed_l = False
+pressed_b = False
+
 def handle_key_press(event, root, sendCh, recCh):
+    global pressed_l, pressed_b
     if event.keysym == 'Escape' or event.keysym == 'q':
         recCh.close()
         sendCh.close()
         root.destroy()
         return
+
     if event.keysym == 'Down':
         sendCh.accelerateCar(-1)
         recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}')
@@ -188,6 +194,7 @@ def handle_key_press(event, root, sendCh, recCh):
         sendCh.breakCar()
         sendCh.reset_servo()
         recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, break')
+    
     if event.keysym == "a":
         sendCh.turn_servo([0,1,0])
     if event.keysym == "d":
@@ -200,14 +207,9 @@ def handle_key_press(event, root, sendCh, recCh):
         sendCh.turn_servo([1,0,0])
     if event.keysym == "p":
         sendCh.turn_servo([-1,0,0])
+    
     if event.keysym == 'm':
         sendCh.sendControl('measure')
-    if event.keysym == 'v':
-        sendCh.sendControl('violent')
-    if event.keysym == 'n':
-        sendCh.sendControl('nino')
-    if event.keysym == 'b':
-        sendCh.sendControl('supermario')
     if event.keysym == 'u':
         if recCh.is_record:
             recCh.recorded_video.release()
@@ -215,6 +217,22 @@ def handle_key_press(event, root, sendCh, recCh):
             recCh.recorded_video = cv2.VideoWriter(f'../video/robot-video-cam-{time.time()}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 30, (640,480))
         recCh.is_record = not recCh.is_record
         recCh.rec_label.configure(text = f'recording = {recCh.is_record}')
+
+    if event.keysym == 'b':
+        pressed_b != pressed_b
+        pressed_l = False
+    if event.keysym == 'l':
+        pressed_b = False
+        pressed_l != pressed_l
+    if event.keysym == 'v' and pressed_b:
+        pressed_b = False
+        sendCh.sendControl('buzzer', 'violent')
+    if event.keysym == 'n' and pressed_b:
+        pressed_b = False
+        sendCh.sendControl('buzzer', 'nino')
+    if  event.keysym == 'y' and pressed_b:
+        pressed_b = False
+        sendCh.sendControl('buzzer', 'supermario')
 
 
 def handle_key_release(event, root, sendCh, recCh):

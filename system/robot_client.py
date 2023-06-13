@@ -7,12 +7,14 @@ from UDPwebcam import UDPwebcam_sender
 import servo
 import sensor
 import buzzer
+import dot_matrix
 
 
 
 servMotors = servo.Servo()
 ultar = sensor.Sensor()
 bz = buzzer.Buzzer()
+dotMatrix = dot_matrix.DotMatrix()
 
 with open('settings.json') as f:
     settings = json.load(f)
@@ -44,12 +46,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
             break
         if dictr['message'] =='measure':
             sender.dist = sensors.distance()
-        if dictr['message'] == "violent":
-            bz.play('mexican')
-        if dictr['message'] == "nino":
-            bz.play('nino')
-        if dictr['message'] == "supermario":
-            bz.play('supermario')
+        if dictr['message'] == 'buzzer':
+            if dictr['parameter'] == "violent":
+                bz.play('mexican')
+            if dictr['parameter'] == "nino":
+                bz.play('nino')
+            if dictr['parameter'] == "supermario":
+                bz.play('supermario')
+        if dictr['message'] == "dot":
+            pass
         speed = dictr['speed']
         if speed != prevspeed:
             prevspeed = speed
