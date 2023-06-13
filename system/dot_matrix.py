@@ -92,7 +92,7 @@ class DotMatrix:
         while True:
             for img in self.images.keys():
                 #print(img)
-                self.matrix_display(dot_matrix.images[img])
+                self.matrix_display(self.images[img])
                 time.sleep(2)
                 if not self.running:
                     break
