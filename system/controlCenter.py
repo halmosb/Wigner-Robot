@@ -223,7 +223,10 @@ def handle_key_press(event, root, sendCh, recCh):
         pressed_l = False
     if event.keysym == 'l':
         pressed_b = False
-        pressed_l = not pressed_l
+        if pressed_l:
+            sendCh.sendControl("dot", "animation")
+        else:
+            pressed_l = True
     if event.keysym == 'v' and pressed_b:
         pressed_b = False
         sendCh.sendControl('buzzer', 'violent')

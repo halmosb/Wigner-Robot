@@ -38,5 +38,4 @@ class Buzzer():
         self.thread.start()
     
     def __del__(self):
-        if self.running:
-            self.running = False
+        self.running = False

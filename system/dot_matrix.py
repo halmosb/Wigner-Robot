@@ -1,27 +1,19 @@
 import RPi.GPIO as GPIO
 import time
 import json
+from threading import Thread
 
 class DotMatrix:
 
     def __init__(self):
-
-        #print("Starting led matrix")
-
+        self.running = False
         self.SCLK = 4
         self.DIO  = 14
+        self.thread = ""
 
         with open('dot_matricies.json') as f:
             self.images = json.load(f)
-        """
-        self.smile = matricies["smile"]
-        self.forward = matricies["forward"]
-        self.back = matricies["back"]
-        self.left = matricies["left"]
-        self.right = matricies["right"]
-        """
-
-
+      
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.SCLK,GPIO.OUT)
@@ -85,6 +77,34 @@ class DotMatrix:
         self.start()
         self.send_date(0x8A)
         self.end()
+    
+    def animation(self):
+        if self.running:
+            self.running = False
+            self.thread.join()
+            self.matrix_clear()
+        else:
+            self.thread = Thread(target = self.run_animation)
+            self.thread.start()
+
+    def run_animation(self):
+        self.running = True
+        while True:
+            for img in self.images.keys():
+                #print(img)
+                dot_matrix.matrix_display(dot_matrix.images[img])
+                time.sleep(2)
+                if not self.running:
+                    break
+
+
+
+    def __del__(self):
+        if self.running:
+            self.running = False
+            self.thread.join()
+        self.matrix_clear()
+        
 
 if __name__ == "__main__":
 

@@ -54,7 +54,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
             if dictr['parameter'] == "supermario":
                 bz.play('supermario')
         if dictr['message'] == "dot":
-            pass
+            if dictr['parameter'] == 'animation':
+                dotMatrix.animation()
         speed = dictr['speed']
         if speed != prevspeed:
             prevspeed = speed
