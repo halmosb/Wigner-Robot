@@ -4,6 +4,9 @@ import time
 class DotMatrix:
 
     def __init__(self):
+
+        print("Starting led matrix")
+
         self.SCLK = 8
         self.DIO  = 9
 
@@ -40,6 +43,7 @@ class DotMatrix:
         self.nop()
         
     def send_date(self, date):
+        print(f"date:{date}")
         for i in range(0,8):
             GPIO.output(self.SCLK,0)
             self.nop()
@@ -64,6 +68,7 @@ class DotMatrix:
         self.nop()
         
     def matrix_display(self, matrix_value):
+        print(f"matrix_vale:{matrix_value}")
         self.start()
         self.send_date(0xc0)
         
