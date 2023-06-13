@@ -11,15 +11,16 @@ class DotMatrix:
         self.SCLK = 4
         self.DIO  = 14
 
-        with open('matricies.json') as f:
-            matricies = json.load(f)
-
+        with open('dot_matricies.json') as f:
+            self.images = json.load(f)
+        """
         self.smile = matricies["smile"]
-        #self.smile = (0x00, 0x00, 0x38, 0x40, 0x40, 0x40, 0x3a, 0x02, 0x02, 0x3a, 0x40, 0x40, 0x40, 0x38, 0x00, 0x00)
-        self.matrix_forward = (0x00, 0x00, 0x00, 0x00, 0x12, 0x24, 0x48, 0x90, 0x90, 0x48, 0x24, 0x12, 0x00, 0x00, 0x00, 0x00)
-        self.matrix_back = (0x00, 0x00, 0x00, 0x00, 0x48, 0x24, 0x12, 0x09, 0x09, 0x12, 0x24, 0x48, 0x00, 0x00, 0x00, 0x00)
-        self.matrix_left = (0x00, 0x00, 0x00, 0x00, 0x18, 0x24, 0x42, 0x99, 0x24, 0x42, 0x81, 0x00, 0x00, 0x00, 0x00, 0x00)
-        self.matrix_right = (0x00, 0x00, 0x00, 0x00, 0x00, 0x81, 0x42, 0x24, 0x99, 0x42, 0x24, 0x18, 0x00, 0x00, 0x00, 0x00)
+        self.forward = matricies["forward"]
+        self.back = matricies["back"]
+        self.left = matricies["left"]
+        self.right = matricies["right"]
+        """
+
 
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
@@ -48,7 +49,7 @@ class DotMatrix:
         self.nop()
         
     def send_date(self, date):
-        print(f"date:{date}")
+        #print(f"date:{date}")
         for i in range(0,8):
             GPIO.output(self.SCLK,0)
             self.nop()
@@ -73,7 +74,7 @@ class DotMatrix:
         self.nop()
         
     def matrix_display(self, matrix_value):
-        print(f"matrix_vale:{matrix_value}")
+        #print(f"matrix_vale:{matrix_value}")
         self.start()
         self.send_date(0xc0)
         
@@ -90,7 +91,12 @@ if __name__ == "__main__":
     dot_matrix = DotMatrix()
 
     try:
-        dot_matrix.matrix_display(dot_matrix.smile)
+        while True:
+            for img in ["smile", "forward", "back", "left", "right"]
+            print(img)
+            dot_matrix.matrix_display(dot_matrix.images[img])
+            time.sleep(2)
+
         """
         while True:
             dot_matrix.matrix_display(dot_matrix.smile)
