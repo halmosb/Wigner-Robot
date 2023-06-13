@@ -173,6 +173,7 @@ def handle_key_press(event, root, sendCh, recCh):
         pressed_l = False
         if pressed_b:
             sendCh.sendControl("buzzer", "whole")
+            pressed_b = False
         else:
             pressed_b = True
         return
@@ -180,6 +181,7 @@ def handle_key_press(event, root, sendCh, recCh):
         pressed_b = False
         if pressed_l:
             sendCh.sendControl("dot", "animation")
+            pressed_l = False
         else:
             pressed_l = True
         return

@@ -73,3 +73,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
 tcp_socket.close()
 sender.stop()
 bz.__del__()
+dotMatrix.__del__()
