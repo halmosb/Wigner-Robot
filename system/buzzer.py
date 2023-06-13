@@ -29,6 +29,16 @@ class Buzzer():
                 break
         self.buzz.stop()
 
+    def play_whole(self):
+        if self.running:
+            self.running = False
+        else:
+            self.song = []
+            for s in self.songs:
+                self.song.append(s)
+            self.thread = Thread(target = self.playlist)
+            self.thread.start()
+
     def play(self, song):
         try:
             self.song = self.songs[song]

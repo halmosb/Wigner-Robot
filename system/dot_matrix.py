@@ -33,12 +33,7 @@ class DotMatrix:
         self.nop()
         
     def matrix_clear(self):
-        GPIO.output(self.SCLK,0)
-        self.nop()
-        GPIO.output(self.DIO,0)
-        self.nop()
-        GPIO.output(self.DIO,0)
-        self.nop()
+        self.matrix_display([0]*16)
         
     def send_date(self, date):
         #print(f"date:{date}")

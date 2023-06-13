@@ -168,6 +168,35 @@ pressed_b = False
 
 def handle_key_press(event, root, sendCh, recCh):
     global pressed_l, pressed_b
+    
+    if event.keysym == 'b':
+        pressed_l = False
+        if pressed_b:
+            sendCh.sendControl("buzzer", "whole")
+        else:
+            pressed_b = True
+        return
+    if event.keysym == 'l':
+        pressed_b = False
+        if pressed_l:
+            sendCh.sendControl("dot", "animation")
+        else:
+            pressed_l = True
+        return
+    if event.keysym == 'v' and pressed_b:
+        pressed_b = False
+        sendCh.sendControl('buzzer', 'violent')
+    if event.keysym == 'n' and pressed_b:
+        pressed_b = False
+        sendCh.sendControl('buzzer', 'nino')
+    if  event.keysym == 'y' and pressed_b:
+        pressed_b = False
+        sendCh.sendControl('buzzer', 'supermario')
+    
+    pressed_l = False
+    pressed_b = False
+    
+    
     if event.keysym == 'Escape' or event.keysym == 'q':
         recCh.close()
         sendCh.close()
@@ -218,24 +247,6 @@ def handle_key_press(event, root, sendCh, recCh):
         recCh.is_record = not recCh.is_record
         recCh.rec_label.configure(text = f'recording = {recCh.is_record}')
 
-    if event.keysym == 'b':
-        pressed_b = not pressed_b
-        pressed_l = False
-    if event.keysym == 'l':
-        pressed_b = False
-        if pressed_l:
-            sendCh.sendControl("dot", "animation")
-        else:
-            pressed_l = True
-    if event.keysym == 'v' and pressed_b:
-        pressed_b = False
-        sendCh.sendControl('buzzer', 'violent')
-    if event.keysym == 'n' and pressed_b:
-        pressed_b = False
-        sendCh.sendControl('buzzer', 'nino')
-    if  event.keysym == 'y' and pressed_b:
-        pressed_b = False
-        sendCh.sendControl('buzzer', 'supermario')
 
 
 def handle_key_release(event, root, sendCh, recCh):
