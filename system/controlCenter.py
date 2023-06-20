@@ -76,9 +76,9 @@ class sendChanel() :
             if self.speed[1] > self.maxturnV:
                 self.speed[1] = self.maxturnV
         else:
-            self.speed[1] -= self.turnV
-            if self.speed[1] < -self.maxturnV:
-                self.speed[1] = -self.maxturnV
+            self.speed[1] += self.turnV
+            if self.speed[1] > self.maxturnV:
+                self.speed[1] = self.maxturnV
         self.sendControl()
 
     def sendControl(self, message="speed", parameter="") :
@@ -145,7 +145,12 @@ class receiveChanel() :
     def updateImage(self) :
         while self.run:
             if self.receiver.dist < settings["emergency_break_distance"]:
-                self.sendCh.breakCar()
+                if not Control.breakCar and self.sendCh.speed[0] > 0:
+                    Control.breakCar = True
+                    self.sendCh.sendControl("buzzer", "nino")
+                    self.sendCh.breakCar()
+            else:
+                Control.breakCar = False
             jpgrec = self.receiver.queue.get()
             frame = cv2.imdecode(jpgrec, cv2.IMREAD_UNCHANGED)
             image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
