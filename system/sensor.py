@@ -15,14 +15,16 @@ class Sensor:
         GPIO.setup(self.US_ECHO, GPIO.IN)
         self.thread = None
 
+        self.start_thread()
+
     def start_thread(self):
-        self.thread = Thread(target = self.run_animation)
+        self.thread = Thread(target = self.measuring)
         self.thread.start()
 
     def measuring(self):
         while (Control.sensor):
             Control.distance = self.distance()
-            time.sleep(0.1)
+            time.sleep(1)
 
     def distance(self):
         # 10us is the trigger signal
@@ -36,4 +38,5 @@ class Sensor:
             pass
         t2 = time.time()
         #time.sleep(0.01)
+        #print(((t2 - t1)* 340 / 2) * 100)
         return ((t2 - t1)* 340 / 2) * 100
