@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
- 
-
+from threading import Thread
+from control import Control
 
 class Sensor:
 
@@ -13,9 +13,16 @@ class Sensor:
         #set GPIO mode (IN / OUT)
         GPIO.setup(self.US_TRIGGER, GPIO.OUT)
         GPIO.setup(self.US_ECHO, GPIO.IN)
+        self.thread = None
 
+    def start_thread(self):
+        self.thread = Thread(target = self.run_animation)
+        self.thread.start()
 
-
+    def measuring(self):
+        while (Control.sensor):
+            Control.distance = self.distance()
+            time.sleep(0.1)
 
     def distance(self):
         # 10us is the trigger signal
@@ -28,5 +35,5 @@ class Sensor:
         while GPIO.input(self.US_ECHO):
             pass
         t2 = time.time()
-        time.sleep(0.01)
+        #time.sleep(0.01)
         return ((t2 - t1)* 340 / 2) * 100

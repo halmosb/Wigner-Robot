@@ -5,10 +5,10 @@ import numpy as np
 import cv2 as cv
 import time
 import json
-
+from control import Control
 
 class UDPwebcam_sender :
-    control = True
+    #control = True
     def __init__(self, shape=None, bufsize=1024, IP='127.0.0.1', port=65534):
         #open socket
         self.addr=(IP, port)
@@ -33,7 +33,7 @@ class UDPwebcam_sender :
 
     def send_function(self) :
         print("Start thread: send")
-        while(self.cam.isOpened() and UDPwebcam_sender.control):
+        while(self.cam.isOpened() and Control.webcam):
             ret, frame = self.cam.read()
             if ret:
                 success, jpgimage = cv.imencode('.jpg', frame)
@@ -42,7 +42,7 @@ class UDPwebcam_sender :
                 self.info.update({
                     'len': len(jpgimage),
                     'nframes' : nframes,
-                    'distance': self.dist
+                    'distance': Control.distance
                 })
                 #prepare metadata header
                 metadata = json.dumps(self.info).encode('utf-8')
@@ -56,12 +56,14 @@ class UDPwebcam_sender :
         print("Stop thread: send")
 
     def start(self) :
-        UDPwebcam_sender.control = True
+        #UDPwebcam_sender.control = True
+        Control.webcam = True
         self.thread = Thread(target=self.send_function)
         self.thread.start()
     
     def stop(self) :
-        UDPwebcam_sender.control=False
+        #UDPwebcam_sender.control=False
+        Control.webcam = False
 
     def __del__(self) :
         self.cam.release()
@@ -69,8 +71,8 @@ class UDPwebcam_sender :
 
 
 class UDPwebcam_receiver :
-    def __init__(self, bufsize=2048, IP='127.0.0.1', port=65534) :
-        self.control = True
+    def __init__(self, bufsize=2048, IP='127.0.0.1', port=65533) :
+        Control.receiver = True
         self.queue = Queue()
         self.dist = 0
 
@@ -85,7 +87,7 @@ class UDPwebcam_receiver :
         print('Start thread: receive')
         chunks = []
         num_chunks = -1
-        while self.control:
+        while Control.receiver:
             message, _ = self.sock.recvfrom(self.bufsize)
             #print(message)
             if message.startswith(self.startCode):
@@ -111,13 +113,13 @@ class UDPwebcam_receiver :
 
     def start(self) :
         print('UDPwebcam_receiver.start')
-        self.control=True
+        Control.receiver=True
         self.thread = Thread(target=self.receive_function)
         self.thread.start()
     
     def stop(self) :
         print('UDPwebcam_receiver.stop')
-        self.control=False
+        Control.receiver=False
 
     def __del__(self) :
         self.sock.close()
