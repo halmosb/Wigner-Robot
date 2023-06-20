@@ -24,7 +24,7 @@ class Sensor:
     def measuring(self):
         while (Control.sensor):
             Control.distance = self.distance()
-            time.sleep(1)
+            time.sleep(0.05)
 
     def distance(self):
         # 10us is the trigger signal

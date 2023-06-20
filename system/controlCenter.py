@@ -105,7 +105,7 @@ class sendChanel() :
         self.sendControl()
 
 class receiveChanel() :
-    def __init__(self, root, settings) :
+    def __init__(self, root, settings, sc) :
         print("initiate receive channel")
 
         self.receiver = UDPwebcam_receiver(bufsize = settings['bufsize'], IP = settings['IP'], port= settings['webcam_port'])
@@ -114,6 +114,7 @@ class receiveChanel() :
         self.root=root
         self.imlabel = Label(self.root)
         self.imlabel.pack()
+        self.sendCh = sc
 
         self.L= settings['window_size']
         self.run = True
@@ -132,7 +133,7 @@ class receiveChanel() :
         self.rec_label = Label(self.root, text = f'recording = {self.is_record}')
         self.rec_label.pack(side = "left")
 
-
+        #print(self.sendCh)
  
     def close(self) :
         print("close receive channel")
@@ -142,10 +143,9 @@ class receiveChanel() :
         self.receiver.stop()
 
     def updateImage(self) :
-        global sendCh
         while self.run:
-            if self.receiver.dist < 10:
-                sendCh.breakCar()
+            if self.receiver.dist < settings["emergency_break_distance"]:
+                self.sendCh.breakCar()
             jpgrec = self.receiver.queue.get()
             frame = cv2.imdecode(jpgrec, cv2.IMREAD_UNCHANGED)
             image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -279,7 +279,7 @@ root = Tk()
 root.title("W. H. I. L. E. T. R. U. E.")
 
 sc = sendChanel(settings)
-rc = receiveChanel(root, settings)
+rc = receiveChanel(root, settings, sc)
 root.bind("<Key>", lambda event: handle_key_press(event, root, sc, rc))
 
 root.mainloop()
