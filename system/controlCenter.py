@@ -8,6 +8,7 @@ from UDPwebcam import UDPwebcam_receiver
 import socket
 import json
 import os
+from control import Control
 
 class sendChanel() :
     def __init__(self, settings) :
@@ -238,8 +239,8 @@ def handle_key_press(event, root, sendCh, recCh):
     if event.keysym == "p":
         sendCh.turn_servo([-1,0,0])
     
-    """if event.keysym == 'm':
-        sendCh.sendControl('measure')"""
+    if event.keysym == 'm':
+        sendCh.sendControl("measure")
     if event.keysym == 'u':
         if recCh.is_record:
             recCh.recorded_video.release()

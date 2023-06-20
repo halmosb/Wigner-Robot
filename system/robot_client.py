@@ -8,6 +8,7 @@ import servo
 import sensor
 import buzzer
 import dot_matrix
+from control import Control
 
 
 
@@ -44,8 +45,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
         prevdictr = copy.deepcopy(dictr)
         if dictr['message'] == 'q':
             break
-        #if dictr['message'] =='measure':
-        #    sender.dist = sensors.distance()
+        if dictr['message'] =='measure':
+            if Control.sensor:
+                Control.sensor = False
+            else:
+                Control.sensor = True
+                sensor.start_thread()
         if dictr['message'] == 'buzzer':
             if dictr['parameter'] == 'whole':
                 bz.play_whole()
