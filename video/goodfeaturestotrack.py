@@ -8,7 +8,7 @@ kernel = np.array([[0, -1, 0],
 # Apply the sharpening effect using the filter2D() function
 
 
-def valami_shi(image):
+def shi_tomasi(image):
     # Load the image
     # = cv2.imread(f'../../Video_dir/frame{frame}.jpg')  # Replace 'path_to_your_image.jpg' with the actual path to your image file
     #image = cv2.blur(image, (5, 5))
@@ -33,13 +33,6 @@ def valami_shi(image):
         cv2.circle(image, (x, y), 3, (0, 255, 0), -1)
     return image
 
-## Display the image with detected corners
-#cv2.imshow('156', valami_shi(156))
-#cv2.imshow('157', valami_shi(157))
-#cv2.imshow('158', valami_shi(158))
-#cv2.waitKey(0)
-#cv2.destroyAllWindows()
-#
 
 video = cv2.VideoCapture("input_video4.avi")
 
@@ -55,7 +48,7 @@ while True:
     if not success:
         break
     
-    out.write(valami_shi(frame))
+    out.write(shi_tomasi(frame))
 
 video.release()
 out.release()

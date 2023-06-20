@@ -6,6 +6,8 @@ from threading import Thread
 class DotMatrix:
 
     def __init__(self):
+        GPIO.setmode(GPIO.BCM)
+
         self.running = False
         self.SCLK = 4
         self.DIO  = 14
