@@ -142,7 +142,10 @@ class receiveChanel() :
         self.receiver.stop()
 
     def updateImage(self) :
+        global sendCh
         while self.run:
+            if self.receiver.dist < 10:
+                sendCh.breakCar()
             jpgrec = self.receiver.queue.get()
             frame = cv2.imdecode(jpgrec, cv2.IMREAD_UNCHANGED)
             image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
