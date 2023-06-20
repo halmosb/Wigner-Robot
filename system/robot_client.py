@@ -9,9 +9,10 @@ import sensor
 import buzzer
 import dot_matrix
 from control import Control
+import speech
 
 
-
+mouth = speech.TTSpeech()
 servMotors = servo.Servo()
 ultar = sensor.Sensor()
 bz = buzzer.Buzzer()
@@ -50,13 +51,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
                 Control.sensor = False
             else:
                 Control.sensor = True
-                sensor.start_thread()
+                sensors.start_thread()
         if dictr['message'] == 'buzzer':
             if dictr['parameter'] == 'whole':
                 bz.play_whole()
             #if dictr['parameter'] in :
             else:
                 bz.play(dictr["parameter"])
+        if dictr['message'] == 'say':
+            mouth.say(dictr["parameter"])
         if dictr['message'] == "dot":
             if dictr['parameter'] == 'animation':
                 dotMatrix.animation()
