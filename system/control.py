@@ -3,3 +3,4 @@ class Control:
     sensor = True
     reciever = True
     distance = 0
+    

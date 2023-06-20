@@ -242,13 +242,12 @@ def handle_key_press(event, root, sendCh, recCh):
     if event.keysym == 'm':
         sendCh.sendControl("measure")
     if event.keysym == 't':
-        def method(e):
-            sendCh.sendControl("say", entry.get())
-            popup.destroy()
+        
         popup = Tk()
-        entry = Entry()
-        entry.bind("<Return>", command = method)
-        popup.pack(entry)
+        entry = Entry(popup)
+        entry.bind("<Return>", lambda e: method(popup, entry, sendCh))
+        entry.pack()
+        entry.focus_set()
         popup.mainloop()
 
     if event.keysym == 'u':
@@ -260,6 +259,9 @@ def handle_key_press(event, root, sendCh, recCh):
         recCh.rec_label.configure(text = f'recording = {recCh.is_record}')
 
 
+def method(popup, entry, sendCh):
+    sendCh.sendControl("say", entry.get())
+    popup.destroy()
 
 def handle_key_release(event, root, sendCh, recCh):
     sendCh.turnCar(0)

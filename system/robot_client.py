@@ -68,6 +68,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
             else:
                 dotMatrix.matrix_display(dictr["parameter"])
         speed = dictr['speed']
+        if Control.distance < 10:
+            speed = 0
         if speed != prevspeed:
             prevspeed = speed
             motors.set_speed(speed)
