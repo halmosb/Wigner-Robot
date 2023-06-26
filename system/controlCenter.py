@@ -28,7 +28,7 @@ class ConvNet(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
-        self.fc = nn.Linear(8 * 8 * 32, num_classes)
+        self.fc = nn.Linear(8 * 8 * 128, num_classes)
 
     def forward(self, x):
         out = self.layer1(x)
@@ -38,7 +38,7 @@ class ConvNet(nn.Module):
         return out
     
 transform = transforms.Compose([
-    transforms.Resize((32, 32)),  # Resize images to a consistent size
+    transforms.Resize((64,64)),  # Resize images to a consistent size
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # normalize inputs
 ])

@@ -8,15 +8,12 @@ from torch.utils.data.dataset import random_split
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Hyperparameters
-num_epochs = 5
+num_epochs = 20
 batch_size = 100
 learning_rate = 0.001
 
 # Image preprocessing modules
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # normalize inputs
-])
+
 
 import os
 from PIL import Image
@@ -53,7 +50,7 @@ class CustomDataset(torch.utils.data.Dataset):
 
 # Image preprocessing modules
 transform = transforms.Compose([
-    transforms.Resize((32, 32)),  # Resize images to a consistent size
+    transforms.Resize((64,64)),  # Resize images to a consistent size
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # normalize inputs
 ])
@@ -61,10 +58,10 @@ transform = transforms.Compose([
 # Path to your image folders
 #train_dir = "Learning Data/up"
 #val_dir = "Learning Data/up"
+dataset = CustomDataset("Learning Data/frames", transform = transform)
+train_size, val_size = int(len(dataset)*0.8), len(dataset)-int(len(dataset)*0.8)
 
-train_size, val_size = 0.8, 0.2
-
-train_dataset, val_dataset = random_split(CustomDataset("Learning Data/up", transform = transform), [train_size, val_size])
+train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 #train_dataset = CustomDataset(train_dir, transform=transform)
 #val_dataset = CustomDataset(val_dir, transform=transform)
 
@@ -88,7 +85,7 @@ class ConvNet(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
-        self.fc = nn.Linear(8 * 8 * 32, num_classes)
+        self.fc = nn.Linear(8 * 8 * 128, num_classes)
 
     def forward(self, x):
         out = self.layer1(x)
