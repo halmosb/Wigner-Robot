@@ -10,6 +10,47 @@ import json
 import os
 from control import Control
 
+import torch
+from torch import nn
+import torchvision.transforms as transforms
+class ConvNet(nn.Module):
+    def __init__(self, num_classes=10):
+        super(ConvNet, self).__init__()
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(3, 16, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
+        self.fc = nn.Linear(8 * 8 * 32, num_classes)
+
+    def forward(self, x):
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = out.reshape(out.size(0), -1)
+        out = self.fc(out)
+        return out
+    
+transform = transforms.Compose([
+    transforms.Resize((32, 32)),  # Resize images to a consistent size
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # normalize inputs
+])
+
+model_path = '../AI/Arrows/model.ckpt'
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device ="cpu"
+model = ConvNet(4).to(device)
+model.load_state_dict(torch.load(model_path))
+#exit(0)
+model.eval()
+
 class sendChanel() :
     def __init__(self, settings) :
         print("initiate send channel")
@@ -76,9 +117,12 @@ class sendChanel() :
             if self.speed[1] > self.maxturnV:
                 self.speed[1] = self.maxturnV
         else:
-            self.speed[1] += self.turnV
+            #self.speed[1] *= (-1) TODO
+            self.speed[1] -= self.turnV
             if self.speed[1] > self.maxturnV:
                 self.speed[1] = self.maxturnV
+            elif self.speed[1]  < -self.maxturnV:
+                self.speed[1] = -self.maxturnV
         self.sendControl()
 
     def sendControl(self, message="speed", parameter="") :
@@ -130,6 +174,9 @@ class receiveChanel() :
         self.is_record = False
         self.recorded_video = None
 
+        self.pred_label = Label(self.root, text = "")
+        self.pred_label.pack(side="right")
+
         self.rec_label = Label(self.root, text = f'recording = {self.is_record}')
         self.rec_label.pack(side = "left")
 
@@ -170,6 +217,7 @@ class receiveChanel() :
             self.imlabel.image = photo
 
             self.dislabel.configure(text = f'd = {self.receiver.dist:.1f} cm')
+            self.pred_label.configure(text=["up", "down", "left", "right"][int(torch.max(model(transform(image).unsqueeze(0).to(device)), 1)[1].item())])
 
 
 pressed_l = False
@@ -234,7 +282,7 @@ def handle_key_press(event, root, sendCh, recCh):
         sendCh.reset_servo()
         recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, break')
     
-    if event.keysym == "a":
+    if event.keysym == "a": 
         sendCh.turn_servo([0,1,0])
     if event.keysym == "d":
         sendCh.turn_servo([0,-1,0])

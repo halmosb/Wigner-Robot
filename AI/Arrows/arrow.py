@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
+from torch.utils.data.dataset import random_split
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -38,7 +39,15 @@ class CustomDataset(torch.utils.data.Dataset):
         if self.transform is not None:
             image = self.transform(image)
         
-        label = 0 if "u" in img_name else 1  # Assign label 0 for "up" images and 1 for "down" images
+        if "u" in img_name:
+            label = 0
+        elif "d" in img_name:
+            label = 1
+        elif "l" in img_name:
+            label = 2
+        elif "r" in img_name:
+            label = 3
+        
         
         return image, label
 
@@ -50,16 +59,18 @@ transform = transforms.Compose([
 ])
 
 # Path to your image folders
-train_dir = "Learning Data/up"
-test_dir = "Learning Data/up"
+#train_dir = "Learning Data/up"
+#val_dir = "Learning Data/up"
 
-# Create custom datasets
-train_dataset = CustomDataset(train_dir, transform=transform)
-test_dataset = CustomDataset(test_dir, transform=transform)
+train_size, val_size = 0.8, 0.2
+
+train_dataset, val_dataset = random_split(CustomDataset("Learning Data/up", transform = transform), [train_size, val_size])
+#train_dataset = CustomDataset(train_dir, transform=transform)
+#val_dataset = CustomDataset(val_dir, transform=transform)
 
 # Data loader
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
+val_loader = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=batch_size, shuffle=False)
 
 # Convolutional neural network (two convolutional layers)
 class ConvNet(nn.Module):
@@ -85,44 +96,46 @@ class ConvNet(nn.Module):
         out = out.reshape(out.size(0), -1)
         out = self.fc(out)
         return out
+if __name__ == "__main__":
+    model = ConvNet(4).to(device)
+    
+    # Loss and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-model = ConvNet().to(device)
+    # Training the model
+    total_step = len(train_loader)
+    for epoch in range(num_epochs):
+        for i, (images, labels) in enumerate(train_loader):
+            images = images.to(device)
+            labels = labels.to(device)
 
-# Loss and optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+            # Forward pass
+            outputs = model(images)
+            loss = criterion(outputs, labels)
 
-# Training the model
-total_step = len(train_loader)
-for epoch in range(num_epochs):
-    for i, (images, labels) in enumerate(train_loader):
-        images = images.to(device)
-        labels = labels.to(device)
+            # Backward and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        # Forward pass
-        outputs = model(images)
-        loss = criterion(outputs, labels)
+            if (i + 1) % 10 == 0:
+                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
+    
+    # Test the model
+    model.eval()  # eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)
 
-        # Backward and optimize
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+    with torch.no_grad():
+        correct = 0
+        total = 0
+        for images, labels in val_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+            print('Accuracy of the model on the test images: {} %'.format(100 * correct / total))
+            
 
-        if (i + 1) % 2 == 0:
-            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
-
-# Test the model
-model.eval()  # eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)
-with torch.no_grad():
-    correct = 0
-    total = 0
-    for images, labels in test_loader:
-        images = images.to(device)
-        labels = labels.to(device)
-        outputs = model(images)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
-        print('Accuracy of the model on the test images: {} %'.format(100 * correct / total))
-torch.save(model.state_dict(), 'model.ckpt')
-
+    torch.save(model.state_dict(), 'model.ckpt')

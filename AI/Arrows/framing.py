@@ -1,5 +1,5 @@
 import cv2 as cv3
-iv = "u3"
+iv = "r0"
 video = cv3.VideoCapture(f"Learning Data/{iv}.avi")
 
 i = 0
