@@ -12,41 +12,42 @@ from control import Control
 
 import torch
 from torch import nn
+import torch.nn.functional as F
 import torchvision.transforms as transforms
-class ConvNet(nn.Module):
-    def __init__(self, num_classes=10):
-        super(ConvNet, self).__init__()
-        self.layer1 = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=5, stride=1, padding=2),
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
-        )
-        self.layer2 = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
-        )
-        self.fc = nn.Linear(8 * 8 * 128, num_classes)
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.conv1 = nn.Conv2d(3, 32, 3, 1)
+        self.conv2 = nn.Conv2d(32, 64, 3, 1)
+        self.dropout1 = nn.Dropout(0.25)
+        self.dropout2 = nn.Dropout(0.5)
+        self.fc1 = nn.Linear(182528, 128)
+        self.fc2 = nn.Linear(128, 4)
 
     def forward(self, x):
-        out = self.layer1(x)
-        out = self.layer2(out)
-        out = out.reshape(out.size(0), -1)
-        out = self.fc(out)
-        return out
+        x = self.conv1(x)
+        x = F.relu(x)
+        x = self.conv2(x)
+        x = F.relu(x)
+        x = F.max_pool2d(x, 2)
+        x = self.dropout1(x)
+        x = torch.flatten(x, 1)
+        x = self.fc1(x)
+        x = F.relu(x)
+        x = self.dropout2(x)
+        x = self.fc2(x)
+        output = F.log_softmax(x, dim=1)
+        return output
     
-transform = transforms.Compose([
-    transforms.Resize((64,64)),  # Resize images to a consistent size
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # normalize inputs
-])
+transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+        ])
 
-model_path = '../AI/Arrows/model.ckpt'
+model_path = '../AI/Arrows/new_arrow.pt'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 device ="cpu"
-model = ConvNet(4).to(device)
+model = Net().to(device)
 model.load_state_dict(torch.load(model_path))
 #exit(0)
 model.eval()
@@ -217,7 +218,7 @@ class receiveChanel() :
             self.imlabel.image = photo
 
             self.dislabel.configure(text = f'd = {self.receiver.dist:.1f} cm')
-            self.pred_label.configure(text=["up", "down", "left", "right"][int(torch.max(model(transform(image).unsqueeze(0).to(device)), 1)[1].item())])
+            self.pred_label.configure(text=["up", "down", "left", "right"][int(torch.max(model(transform(image.resize((128, 96))).unsqueeze(0).to(device)), 1)[1].item())])
 
 
 pressed_l = False
