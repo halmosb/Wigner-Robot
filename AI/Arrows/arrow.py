@@ -13,24 +13,29 @@ from PIL import Image
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(3, 32, 3, 1)
-        self.conv2 = nn.Conv2d(32, 64, 3, 1)
+        self.conv1 = nn.Conv2d(1, 3, 4, 1)
+        self.conv2 = nn.Conv2d(3, 3, 4, 1)
+        self.conv3 = nn.Conv2d(3, 3, 4, 1)
         self.dropout1 = nn.Dropout(0.25)
         self.dropout2 = nn.Dropout(0.5)
-        self.fc1 = nn.Linear(182528, 128)
-        self.fc2 = nn.Linear(128, 4)
+        self.fc1 = nn.Linear(45, 20)
+        self.fc2 = nn.Linear(20, 4)
 
     def forward(self, x):
         x = self.conv1(x)
         x = F.relu(x)
+        x = F.max_pool2d(x, 2)
         x = self.conv2(x)
         x = F.relu(x)
         x = F.max_pool2d(x, 2)
-        x = self.dropout1(x)
+        x = self.conv3(x)
+        x = F.relu(x)
+        x = F.max_pool2d(x, 2)
+        #x = self.dropout1(x)
         x = torch.flatten(x, 1)
         x = self.fc1(x)
         x = F.relu(x)
-        x = self.dropout2(x)
+        #x = self.dropout2(x)
         x = self.fc2(x)
         output = F.log_softmax(x, dim=1)
         return output
@@ -47,7 +52,7 @@ class CustomDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         img_name = self.image_list[idx]
         img_path = os.path.join(self.root_dir, img_name)
-        image = Image.open(img_path).convert('RGB').resize((128, 96))
+        image = Image.open(img_path).convert('L').resize((64, 48))
         #image.show()
         #exit()
         
@@ -57,12 +62,11 @@ class CustomDataset(torch.utils.data.Dataset):
         if "u" in img_name:
             label = 0
         elif "d" in img_name:
-            label = 0
+            label = 1
         elif "l" in img_name:
-            label = 1
+            label = 2
         elif "r" in img_name:
-            label = 1
-        
+            label = 3        
         
         return image, label
 
@@ -105,12 +109,12 @@ def test(model, device, test_loader):
 def main():
     # Training settings
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    parser.add_argument('--batch-size', type=int, default=64, metavar='N',
+    parser.add_argument('--batch-size', type=int, default=100, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
     
-    parser.add_argument('--epochs', type=int, default=5, metavar='N',
+    parser.add_argument('--epochs', type=int, default=6, metavar='N',
                         help='number of epochs to train (default: 14)')
     
     parser.add_argument('--lr', type=float, default=1.0, metavar='LR',
@@ -172,7 +176,7 @@ def main():
         scheduler.step()
 
     if args.save_model:
-        torch.save(model.state_dict(), "new_arrow.pt")
+        torch.save(model.state_dict(), "newer_arrow.pt")
 
 
 if __name__ == '__main__':

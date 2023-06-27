@@ -9,6 +9,7 @@ import socket
 import json
 import os
 from control import Control
+import copy
 
 import torch
 from torch import nn
@@ -17,17 +18,20 @@ import torchvision.transforms as transforms
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(3, 32, 3, 1)
-        self.conv2 = nn.Conv2d(32, 64, 3, 1)
+        self.conv1 = nn.Conv2d(3, 32, 7, 1)
+        self.conv2 = nn.Conv2d(32, 64, 7, 1)
+        self.conv3 = nn.Conv2d(64, 128, 7, 1)
         self.dropout1 = nn.Dropout(0.25)
         self.dropout2 = nn.Dropout(0.5)
-        self.fc1 = nn.Linear(182528, 128)
+        self.fc1 = nn.Linear(44160, 128)
         self.fc2 = nn.Linear(128, 4)
 
     def forward(self, x):
         x = self.conv1(x)
         x = F.relu(x)
         x = self.conv2(x)
+        x = F.relu(x)
+        x = self.conv3(x)
         x = F.relu(x)
         x = F.max_pool2d(x, 2)
         x = self.dropout1(x)
@@ -44,7 +48,7 @@ transform=transforms.Compose([
         transforms.Normalize((0.1307,), (0.3081,))
         ])
 
-model_path = '../AI/Arrows/new_arrow.pt'
+model_path = '../AI/Arrows/newer_arrow.pt'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 device ="cpu"
 model = Net().to(device)
@@ -212,13 +216,24 @@ class receiveChanel() :
         newsize = [int(n) for n in np.array(image.size)/np.max(np.array(image.size)/self.L)]
         image = image.resize(newsize)
         if self.run:
-            photo = ImageTk.PhotoImage(image)
+            image2 = copy.deepcopy(image)
+    
+            center_x = 590
+            center_y = 50
+            radius = 300
+            color = (255, 0, 0)  # Red color
+            if self.is_record and int(time.time())%2 == 0:
+                draw = ImageDraw.Draw(image2)
+                draw.ellipse((center_x - radius, center_y - radius, center_x + radius, center_y + radius), fill=color)
 
+            photo = ImageTk.PhotoImage(image2)
             self.imlabel.configure(image=photo)
             self.imlabel.image = photo
 
             self.dislabel.configure(text = f'd = {self.receiver.dist:.1f} cm')
-            self.pred_label.configure(text=["up", "down", "left", "right"][int(torch.max(model(transform(image.resize((128, 96))).unsqueeze(0).to(device)), 1)[1].item())])
+            #self.pred_label.configure(text=model(transform(image.resize((64, 48))).to(device)))
+        
+            self.pred_label.configure(text=["up", "down", "left", "right"][int(torch.max(model(transform(image.resize((64, 48))).unsqueeze(0).to(device)), 1)[1].item())])
 
 
 pressed_l = False

@@ -1,23 +1,22 @@
 import torch
 import torchvision.transforms as transforms
 from PIL import Image
-from arrow import ConvNet, CustomDataset
+from arrow import Net, CustomDataset
 
 # Load the saved model
-model_path = 'model.ckpt'
+model_path = 'newer_arrow.pt'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-transform = transforms.Compose([
-    transforms.Resize((64,64)),  # Resize images to a consistent size
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # normalize inputs
+transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
 ])
-model = ConvNet(4).to(device)
+model = Net().to(device)
 model.load_state_dict(torch.load(model_path))
 #exit(0)
 model.eval()  # Set the model to evaluation mode
 
-dataset = CustomDataset("Learning Data/test", transform=transform)
-data_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=100, shuffle=True)
+dataset = CustomDataset("Learning Data/test3", transform=transform)
+data_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=50, shuffle=False)
 # Define the image preprocessing transformations
 
 
@@ -25,6 +24,8 @@ with torch.no_grad():
         correct = 0
         total = 0
         for images, labels in data_loader:
+            correct = 0
+            total = 0
             images = images.to(device)
             labels = labels.to(device)
             outputs = model(images)
