@@ -10,6 +10,13 @@ import os
 from PIL import Image
 from arrow import Net
 
+"""
+model_path = 'Models/0001.model'
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device ="cpu"
+model = torch.jit.load(model_path).to(device)
+model.eval()
+"""
 
 model_path = "newer_arrow.pt"
 
@@ -46,3 +53,7 @@ def forward_hook(module, args, output):
 
 backward_hook = model.resnet_blocks[-1].register_full_backward_hook(backward_hook, prepend=False)
 forward_hook = model.resnet_blocks[-1].register_forward_hook(forward_hook, prepend=False)
+
+img_path = "Learning Data/frames/u0-0123.jpg"
+image = Image.open(img_path).convert('L')
+image.show()

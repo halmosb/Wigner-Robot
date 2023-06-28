@@ -50,7 +50,7 @@ transform=transforms.Compose([
         transforms.Normalize((0.1307,), (0.3081,))
         ])
 
-model_path = '../AI/Arrows/Models/0001.model'
+model_path = '../AI/Arm/Models/0001.model'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 device ="cpu"
 model = torch.jit.load(model_path).to(device)
@@ -237,9 +237,9 @@ class receiveChanel() :
 
             self.dislabel.configure(text = f'd = {self.receiver.dist:.1f} cm')
             #self.pred_label.configure(text=model(transform(image.resize((64, 48))).to(device)))
-            pred = ["up", "down", "left", "right"][int(torch.max(model(transform(image.resize((64, 48)).convert('L')).unsqueeze(0).to(device)), 1)[1].item())]
+            pred = ["up", "down", "left", "right","center"][int(torch.max(model(transform(image.resize((64, 48)).convert('L')).unsqueeze(0).to(device)), 1)[1].item())]
             self.pred_label.configure(text=pred)
-            self.sendCh.sendControl("dot", pred, False)
+            #self.sendCh.sendControl("dot", pred, False)
 
 
 pressed_l = False
