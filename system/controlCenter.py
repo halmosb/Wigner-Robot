@@ -50,13 +50,15 @@ transform=transforms.Compose([
         transforms.Normalize((0.1307,), (0.3081,))
         ])
 
-model_path = '../AI/Arrows/newer_arrow.pt'
+model_path = '../AI/Arrows/Models/0001.model'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 device ="cpu"
-model = Net().to(device)
-model.load_state_dict(torch.load(model_path))
-#exit(0)
+model = torch.jit.load(model_path).to(device)
 model.eval()
+
+#model = Net().to(device)
+#model.load_state_dict(torch.load(model_path))
+#exit(0)
 
 class sendChanel() :
     def __init__(self, settings) :

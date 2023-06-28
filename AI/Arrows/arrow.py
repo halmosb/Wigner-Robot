@@ -8,7 +8,9 @@ from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 import os
 from PIL import Image
-
+losses = []
+testloss = []
+accuracy = []
 
 class Net(nn.Module):
     def __init__(self):
@@ -83,6 +85,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
+            losses.append(loss.item())
             if args.dry_run:
                 break
 
@@ -104,6 +107,8 @@ def test(model, device, test_loader):
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
+    testloss.append(test_loss)
+    accuracy.append(100. * correct / len(test_loader.dataset))
 
 
 def main():
@@ -114,11 +119,11 @@ def main():
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
     
-    parser.add_argument('--epochs', type=int, default=4, metavar='N',
+    parser.add_argument('--epochs', type=int, default=5, metavar='N',
                         help='number of epochs to train (default: 14)')
     
-    parser.add_argument('--lr', type=float, default=6.0, metavar='LR',
-                        help='learning rate (default: 6.0)')
+    parser.add_argument('--lr', type=float, default=4.0, metavar='LR',
+                        help='learning rate (default: 4.0)')
     parser.add_argument('--gamma', type=float, default=0.7, metavar='M',
                         help='Learning rate step gamma (default: 0.7)')
     parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -171,16 +176,30 @@ def main():
 
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
     for epoch in range(1, args.epochs + 1):
-        args.lr /= 1.5
+        #args.lr /= args.lrc
         for g in optimizer.param_groups:
-            g['lr'] = args.lr
+           #g['lr'] = args.lr
             print(f"learning rate = {g['lr']}")
         train(args, model, device, train_loader, optimizer, epoch)
         test(model, device, test_loader)
         scheduler.step()
 
+    #"index";"comment";"learning rate";"gamma";"epoch";"batch size";"seed";"log interval";"optimizer";transform";"stepLRsize";"loss";"test loss";"accuracy"
+
     if args.save_model:
-        torch.save(model, "newer_arrow.model")
+        #torch.save(model.state_dict(), "newer_arrow.pt")
+        model_scripted = torch.jit.script(model) # Export to TorchScript
+        dir = os.listdir("Models")
+        dir = filter(lambda name: ".model" in name, dir)
+        index = int(max(dir)[:-6])+1
+        
+        model_scripted.save(f'Models/{index:04}.model')
+
+        comment = "Testing"
+
+        with open('Models/parameters.csv', "a") as file:
+            file.write(";".join([str(y) for y in [index,comment,args.lr,args.gamma,args.epochs,args.batch_size,args.seed,args.log_interval,"Adadelta",str(transform).replace("\n",""),1,losses,testloss,accuracy]]))
+            file.write("\n")
 
 
 if __name__ == '__main__':
