@@ -132,7 +132,7 @@ class sendChanel() :
                 self.speed[1] = -self.maxturnV
         self.sendControl()
 
-    def sendControl(self, message="speed", parameter="") :
+    def sendControl(self, message="speed", parameter="", log = True) :
         try:
             dictr = {
                 'message' : message,
@@ -140,7 +140,8 @@ class sendChanel() :
                 "angles" : self.angles,
                 "parameter" : parameter,
             }
-            print(json.dumps(dictr).encode('utf-8'))
+            if log:
+                print(json.dumps(dictr).encode('utf-8'))
             self.connection.sendall(json.dumps(dictr).encode('utf-8'))
         except:
             print('send failed')
@@ -236,7 +237,7 @@ class receiveChanel() :
             #self.pred_label.configure(text=model(transform(image.resize((64, 48))).to(device)))
             pred = ["up", "down", "left", "right"][int(torch.max(model(transform(image.resize((64, 48)).convert('L')).unsqueeze(0).to(device)), 1)[1].item())]
             self.pred_label.configure(text=pred)
-            self.sendCh.sendControl("dot", pred)
+            self.sendCh.sendControl("dot", pred, False)
 
 
 pressed_l = False

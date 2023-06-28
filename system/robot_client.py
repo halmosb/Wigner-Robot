@@ -42,7 +42,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
             print("Fixed data")
             data = '{'+data.split('}{')[-1]
         dictr = json.loads(data)
-        print(dictr)
+        if dictr["message"] != "dot":
+            print(dictr)
         prevdictr = copy.deepcopy(dictr)
         if dictr['message'] == 'q':
             break
