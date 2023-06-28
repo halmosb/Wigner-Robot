@@ -239,7 +239,8 @@ class receiveChanel() :
             #self.pred_label.configure(text=model(transform(image.resize((64, 48))).to(device)))
             pred = ["up", "down", "left", "right","center"][int(torch.max(model(transform(image.resize((64, 48)).convert('L')).unsqueeze(0).to(device)), 1)[1].item())]
             self.pred_label.configure(text=pred)
-            #self.sendCh.sendControl("dot", pred, False)
+            if Control.send_AI_dot:
+                self.sendCh.sendControl("dot", pred, False)
 
 
 pressed_l = False
