@@ -96,7 +96,9 @@ class DotMatrix:
             else:
                 continue
             break
-
+    
+    def show(self, name):
+        self.matrix_display(self.images[name])
 
 
     def __del__(self):

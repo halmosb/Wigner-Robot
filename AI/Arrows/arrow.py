@@ -180,7 +180,7 @@ def main():
         scheduler.step()
 
     if args.save_model:
-        torch.save(model.state_dict(), "newer_arrow.pt")
+        torch.save(model, "newer_arrow.model")
 
 
 if __name__ == '__main__':

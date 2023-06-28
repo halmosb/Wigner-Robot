@@ -66,7 +66,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
             elif dictr["parameter"] == 'clear':
                 dotMatrix.matrix_clear()
             else:
-                dotMatrix.matrix_display(dictr["parameter"])
+                dotMatrix.show(dictr["parameter"])
         speed = dictr['speed']
         if speed != prevspeed:
             prevspeed = speed
