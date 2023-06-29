@@ -144,7 +144,7 @@ class sendChanel() :
 
     def sendControl(self) :
         while True :
-            time.sleep(0.1)
+            time.sleep(0.2)
             try:
                 #if log:
                 #print(json.dumps(dictr).encode('utf-8'))
