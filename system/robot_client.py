@@ -31,7 +31,7 @@ prevangles = [90,90,90]
 
 sender = UDPwebcam_sender(bufsize= settings['bufsize'], IP= settings['IP'], port=settings['webcam_port'])
 sender.start()
-
+prevdictr = None
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
     tcp_socket.connect((settings['IP'], settings['control_port']))
     while True:

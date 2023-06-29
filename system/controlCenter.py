@@ -210,7 +210,7 @@ class receiveChanel() :
     def updateImage(self) :
         while self.run:
             if self.receiver.dist < settings["emergency_break_distance"]:
-                if not Control.breakCar and self.sendCh.speed[0] > 0:
+                if not Control.breakCar and self.sendCh.params["speed"][0] > 0:
                     Control.breakCar = True
                     self.sendCh.params["buzzer"] = "nino"
                     self.sendCh.breakCar()
@@ -306,24 +306,24 @@ def handle_key_press(event, root, sendCh, recCh):
 
     if event.keysym == 'Down':
         sendCh.accelerateCar(-1)
-        recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}')
+        recCh.textlabel.configure(text = f'speed = {sendCh.params["speed"][0]}')
         return
     if event.keysym == 'Up':
         sendCh.accelerateCar(1)
-        recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}')
+        recCh.textlabel.configure(text = f'speed = {sendCh.params["speed"][0]}')
         return
     if event.keysym == 'Right':
         sendCh.turnCar(1)
-        recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, turn right')
+        recCh.textlabel.configure(text = f'speed = {sendCh.params["speed"][0]}, turn right')
         return
     if event.keysym == 'Left':
         sendCh.turnCar(-1)
-        recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, turn left')
+        recCh.textlabel.configure(text = f'speed = {sendCh.params["speed"][0]}, turn left')
         return
     if event.keysym == 'space':
         sendCh.breakCar()
         sendCh.reset_servo()
-        recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, break')
+        recCh.textlabel.configure(text = f'speed = {sendCh.params["speed"][0]}, break')
     
     if event.keysym.lower() == "a": 
         sendCh.turn_servo([0,1,0])
