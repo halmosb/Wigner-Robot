@@ -52,7 +52,7 @@ transform=transforms.Compose([
         transforms.Normalize((0.1307,), (0.3081,))
         ])
 
-model_path = '../AI/Arm/Models/0001.model'
+model_path = '../AI/Arm/Models/0005.model'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 device ="cpu"
 model = torch.jit.load(model_path).to(device)
@@ -69,9 +69,7 @@ class sendChanel() :
         
         server_address = (settings['IP'], settings['control_port'])
         self.tcp_socket.bind(server_address)
-        
-        self.speed = [0,0]
-        self.angles = settings["default-angles"]
+
         self.dangle = settings["dangle"]
         self.acc = settings['acc']
         self.dec = settings['dec']
@@ -85,80 +83,87 @@ class sendChanel() :
         self.tcp_socket.listen(1)
         print("Waiting for connection")
         self.connection, client = self.tcp_socket.accept()
-    
+
+        self.params = {
+                "speed" : [0,0],
+                "angles" : settings["default-angles"],
+                "buzzer" : "",
+                "dot" : "",
+                "US_measure" : False,
+                "say" : "",
+                "running" : True
+        }
+        self.controlthread = Thread(target=self.sendControl)
+        self.controlthread.start()
+
     def close(self) :
         print("close send channel")
-        self.sendControl(message='end')
+        self.params["running"] = False
         self.connection.close()
         self.tcp_socket.close()
 
     def accelerateCar(self, sgn) :
         if sgn == 0:
-            self.speed= [0,0]
-            self.sendControl()
+            self.params["speed"]= [0,0]
             return
         
-        if self.speed[0] >= 0:
+        if self.params["speed"][0] >= 0:
             if sgn > 0:
-                self.speed[0] += self.acc
-                if self.speed[0] > self.maxSpeed:
-                    self.speed[0] = self.maxSpeed
+                self.params["speed"][0] += self.acc
+                if self.params["speed"][0] > self.maxSpeed:
+                    self.params["speed"][0] = self.maxSpeed
             else :
-                self.speed[0] -= self.dec
-        if self.speed[0] < 0:
+                self.params["speed"][0] -= self.dec
+        if self.params["speed"][0] < 0:
             if sgn < 0:
-                self.speed[0] -= self.back_acc
-                if self.speed[0] < -self.maxBackSpeed:
-                    self.speed[0] = -self.maxBackSpeed
+                self.params["speed"][0] -= self.back_acc
+                if self.params["speed"][0] < -self.maxBackSpeed:
+                    self.params["speed"][0] = -self.maxBackSpeed
             else :
-                self.speed[0] += self.back_dec
-        print(f'accelerateCar: {sgn}, {self.speed}, {self.acc}')
-        self.sendControl()
+                self.params["speed"][0] += self.back_dec
+        print(f'accelerateCar: {sgn}, {self.params["speed"]}, {self.acc}')
     
     def breakCar(self) : 
-        self.speed= [0,0]
-        self.sendControl()
+        self.params["speed"]= [0,0]
 
     def turnCar(self, sgn) :
-        print(f'turnCar: {sgn}, {self.speed}')
+        print(f'turnCar: {sgn}, {self.params["speed"]}')
         if sgn == 0:
-            self.speed[1] = 0
+            self.params["speed"][1] = 0
         elif sgn > 0:
-            self.speed[1] += self.turnV
-            if self.speed[1] > self.maxturnV:
-                self.speed[1] = self.maxturnV
+            self.params["speed"][1] += self.turnV
+            if self.params["speed"][1] > self.maxturnV:
+                self.params["speed"][1] = self.maxturnV
         else:
-            #self.speed[1] *= (-1) TODO
-            self.speed[1] -= self.turnV
-            if self.speed[1] > self.maxturnV:
-                self.speed[1] = self.maxturnV
-            elif self.speed[1]  < -self.maxturnV:
-                self.speed[1] = -self.maxturnV
-        self.sendControl()
+            #self.params["speed"][1] *= (-1) TODO
+            self.params["speed"][1] -= self.turnV
+            if self.params["speed"][1] > self.maxturnV:
+                self.params["speed"][1] = self.maxturnV
+            elif self.params["speed"][1]  < -self.maxturnV:
+                self.params["speed"][1] = -self.maxturnV
 
-    def sendControl(self, message="speed", parameter="", log = True) :
-        try:
-            dictr = {
-                'message' : message,
-                'speed' : self.speed,
-                "angles" : self.angles,
-                "parameter" : parameter,
-            }
-            if log:
-                print(json.dumps(dictr).encode('utf-8'))
-            self.connection.sendall(json.dumps(dictr).encode('utf-8'))
-        except:
-            print('send failed')
-            #if input("Stop?")=="I":
-            exit(216)
+    def sendControl(self) :
+        while True :
+            time.sleep(0.1)
+            try:
+                #if log:
+                #print(json.dumps(dictr).encode('utf-8'))
+                self.connection.sendall(json.dumps(self.params).encode('utf-8'))
+            except:
+                print('send failed')
+                #if input("Stop?")=="I":
+                exit(216)
+            if not self.params["running"]:
+                break
+            self.params["buzzer"] = ""
+            self.params["say"] = ""
+            self.params["dot"] = ""
 
     def turn_servo(self, directions):
-        self.angles = [max(min(self.angles[i]+self.dangle*directions[i], 180), 0) for i in range(3)]
-        self.sendControl()
+        self.params["angles"] = [max(min(self.params["angles"][i]+self.dangle*directions[i], 180), 0) for i in range(3)]
     
     def reset_servo(self):
-        self.angles = settings["default-angles"]
-        self.sendControl()
+        self.params["angles"] = settings["default-angles"]
 
 class receiveChanel() :
     def __init__(self, root, settings, sc) :
@@ -207,7 +212,7 @@ class receiveChanel() :
             if self.receiver.dist < settings["emergency_break_distance"]:
                 if not Control.breakCar and self.sendCh.speed[0] > 0:
                     Control.breakCar = True
-                    self.sendCh.sendControl("buzzer", "nino")
+                    self.sendCh.params["buzzer"] = "nino"
                     self.sendCh.breakCar()
             else:
                 Control.breakCar = False
@@ -226,9 +231,9 @@ class receiveChanel() :
         if self.run:
             image2 = copy.deepcopy(image)
     
-            center_x = 590
-            center_y = 50
-            radius = 300
+            center_x = 470
+            center_y = 40
+            radius = 20
             color = (255, 0, 0)  # Red color
             if self.is_record and int(time.time())%2 == 0:
                 draw = ImageDraw.Draw(image2)
@@ -241,18 +246,19 @@ class receiveChanel() :
             self.dislabel.configure(text = f'd = {self.receiver.dist:.1f} cm')
             #self.pred_label.configure(text=model(transform(image.resize((64, 48))).to(device)))
             pred = ["up", "down", "left", "right","center"][int(torch.max(model(transform(image.resize((64, 48)).convert('L')).unsqueeze(0).to(device)), 1)[1].item())]
+            #print(model(transform(image.resize((64, 48)).convert('L')).unsqueeze(0).to(device)))
             self.pred_label.configure(text=pred)
             if len(self.prevdir) >= settings["max_dir_queue_size"]:
                 self.prevdir.pop(0)
             self.prevdir.append(pred)
             if Control.send_AI_dot:
                 if self.prevdir.count(mode(self.prevdir)) >= 0.7*settings["max_dir_queue_size"]:
-                    self.sendCh.sendControl("dot", pred, False)
+                    self.sendCh.params["dot"] = pred
                     time.sleep(0.1)
                     if Control.arm_move_camera:
                         self.sendCh.turn_servo([0,(1 if pred == "left" else (-1 if pred == "right" else 0)),0])
                 else:
-                    self.sendCh.sendControl("dot", "line", False)
+                    self.sendCh.params["dot"] = "line"
 
 
 pressed_l = False
@@ -264,7 +270,7 @@ def handle_key_press(event, root, sendCh, recCh):
     if event.keysym.lower() == 'b':
         pressed_l = False
         if pressed_b:
-            sendCh.sendControl("buzzer", "whole")
+            sendCh.params["buzzer"] = "whole"
             pressed_b = False
         else:
             pressed_b = True
@@ -272,19 +278,19 @@ def handle_key_press(event, root, sendCh, recCh):
     if event.keysym.lower() == 'l':
         pressed_b = False
         if pressed_l:
-            sendCh.sendControl("dot", "animation")
+            sendCh.params["dot"] = "animation"
             pressed_l = False
         else:
             pressed_l = True
         return
     if event.keysym.lower() == 'v' and pressed_b:
-        sendCh.sendControl('buzzer', 'violent')
+        sendCh.params["buzzer"] = "violent"
     if event.keysym.lower() == 'n' and pressed_b:
-        sendCh.sendControl('buzzer', 'nino')
+        sendCh.params["buzzer"] = "nino"
     if  event.keysym.lower() == 'y' and pressed_b:
-        sendCh.sendControl('buzzer', 'supermario')
+        sendCh.params["buzzer"] = "supermario"
     if event.keysym.lower() == 'c' and pressed_l:
-        sendCh.sendControl("dot", "clear")
+        sendCh.params["dot"] = "clear"
     
     pressed_l = False
     pressed_b = False
@@ -335,7 +341,7 @@ def handle_key_press(event, root, sendCh, recCh):
         Control.arm_move_camera = not Control.arm_move_camera
 
     if event.keysym.lower() == 'm':
-        sendCh.sendControl("measure")
+        sendCh.params["US_measure"] = not sendCh.params["US_measure"]
     if event.keysym.lower() == 't':
         
         popup = Tk()
@@ -355,7 +361,7 @@ def handle_key_press(event, root, sendCh, recCh):
 
 
 def method(popup, entry, sendCh):
-    sendCh.sendControl("say", entry.get())
+    sendCh.params["say"] = entry.get()
     popup.destroy()
 
 def handle_key_release(event, root, sendCh, recCh):

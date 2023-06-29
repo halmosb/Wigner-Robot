@@ -42,42 +42,39 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
             print("Fixed data")
             data = '{'+data.split('}{')[-1]
         dictr = json.loads(data)
-        if dictr["message"] != "dot":
-            print(dictr)
-        prevdictr = copy.deepcopy(dictr)
-        if dictr['message'] == 'q':
-            break
-        if dictr['message'] =='measure':
-            if Control.sensor:
-                Control.sensor = False
-            else:
+        if dictr != prevdictr:
+            prevdictr = copy.deepcopy(dictr)
+            if not dictr['running']:
+                break
+            if dictr["US_measure"] and not Control.sensor:
                 Control.sensor = True
                 sensors.start_thread()
-        if dictr['message'] == 'buzzer':
-            if dictr['parameter'] == 'whole':
+            Control.sensor = dictr['US_measure']
+            
+            if dictr['buzzer'] == 'whole':
                 bz.play_whole()
             #if dictr['parameter'] in :
-            else:
-                bz.play(dictr["parameter"])
-        if dictr['message'] == 'say':
-            mouth.say(dictr["parameter"])
-        if dictr['message'] == "dot":
-            if dictr['parameter'] == 'animation':
-                dotMatrix.animation()
-            elif dictr["parameter"] == 'clear':
-                dotMatrix.matrix_clear()
-            else:
-                dotMatrix.show(dictr["parameter"])
-        speed = dictr['speed']
-        if speed != prevspeed:
-            prevspeed = speed
-            motors.set_speed(speed)
-        angles = dictr["angles"]
-        for i in range(3):
-            if angles[i] != prevangles[i]:
-                name = list(servMotors.names.keys())[i]
-                servMotors.servoPulse(name,angles[i])
-                prevangles[i] = angles[i]
+            elif dictr["buzzer"] != "":
+                bz.play(dictr["buzzer"])
+            if dictr['say'] != '':
+                mouth.say(dictr["say"])
+            if dictr['dot'] != "":
+                if dictr['dot'] == 'animation':
+                    dotMatrix.animation()
+                elif dictr["dot"] == 'clear':
+                    dotMatrix.matrix_clear()
+                else:
+                    dotMatrix.show(dictr["dot"])
+            speed = dictr['speed']
+            if speed != prevspeed:
+                prevspeed = speed
+                motors.set_speed(speed)
+            angles = dictr["angles"]
+            for i in range(3):
+                if angles[i] != prevangles[i]:
+                    name = list(servMotors.names.keys())[i]
+                    servMotors.servoPulse(name,angles[i])
+                    prevangles[i] = angles[i]
 
 #print("Closing socket")
 tcp_socket.close()

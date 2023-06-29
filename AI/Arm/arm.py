@@ -8,9 +8,13 @@ from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 import os
 from PIL import Image
+import time
 losses = []
 testloss = []
 accuracy = []
+
+
+
 
 class Net(nn.Module):
     def __init__(self):
@@ -121,7 +125,7 @@ def main():
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
     
-    parser.add_argument('--epochs', type=int, default=2, metavar='N',
+    parser.add_argument('--epochs', type=int, default=5, metavar='N',
                         help='number of epochs to train (default: 14)')
     
     parser.add_argument('--lr', type=float, default=4.0, metavar='LR',
@@ -170,11 +174,13 @@ def main():
     #                   transform=transform)
     #dataset2 = datasets.MNIST('../data', train=False,
     #                   transform=transform)
-    train_loader = torch.utils.data.DataLoader(CustomDataset("Learning Data/frames", transform=transform),**train_kwargs)
-    test_loader = torch.utils.data.DataLoader(CustomDataset("Learning Data/test", transform=transform), **test_kwargs)
+    train_loader = torch.utils.data.DataLoader(CustomDataset("../../../Data/AI/Arm/Learning Data/frames", transform=transform),**train_kwargs)
+    test_loader = torch.utils.data.DataLoader(CustomDataset("../../../Data/AI/Arm/Learning Data/test", transform=transform), **test_kwargs)
 
     model = Net().to(device)
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
+
+    prev_time = time.time()
 
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
     for epoch in range(1, args.epochs + 1):
@@ -186,8 +192,10 @@ def main():
         test(model, device, test_loader)
         scheduler.step()
 
-    #"index";"comment";"learning rate";"gamma";"epoch";"batch size";"seed";"log interval";"optimizer";transform";"stepLRsize";"loss";"test loss";"accuracy"
+    #"index";"comment";"time";"learning rate";"gamma";"epoch";"batch size";"seed";"log interval";"optimizer";transform";"stepLRsize";"loss";"test loss";"accuracy"
 
+    run_time = time.time() - prev_time
+    print(f"All runtime = {run_time:.1f}")
     if args.save_model:
         #torch.save(model.state_dict(), "newer_arrow.pt")
         model_scripted = torch.jit.script(model) # Export to TorchScript
@@ -199,12 +207,14 @@ def main():
         except:
             index = 0
             model_scripted.save(f'Models/0000.model')
-        comment = "Testing"
+        comment = "more epochs"
 
         with open('Models/parameters.csv', "a") as file:
-            file.write(";".join([str(y) for y in [index,comment,args.lr,args.gamma,args.epochs,args.batch_size,args.seed,args.log_interval,"Adadelta",str(transform).replace("\n",""),1,losses,testloss,accuracy]]))
+            file.write(";".join([str(y) for y in [index,comment,run_time,args.lr,args.gamma,args.epochs,args.batch_size,args.seed,args.log_interval,"Adadelta",str(transform).replace("\n",""),1,losses,testloss,accuracy]]))
             file.write("\n")
 
 
 if __name__ == '__main__':
+    
+
     main()

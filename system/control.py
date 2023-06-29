@@ -5,4 +5,4 @@ class Control:
     distance = 0
     breakCar = False
     send_AI_dot = True # Showing the dot matrix of the AI
-    arm_move_camera = True
+    arm_move_camera = False

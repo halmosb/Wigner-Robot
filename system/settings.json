@@ -14,7 +14,7 @@
     "maxBackSpeed" : 20,
     "turnV" : 20,
     "maxturnV" : 40,
-    "dangle" : 5,
+    "dangle" : 2,
     "default-angles": [90,90,90],
     "emergency_break_distance": 15,
     "max_dir_queue_size": 50
