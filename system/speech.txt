@@ -13,3 +13,4 @@ What is a Robot?
 
     A robot is a machine designed to perform tasks autonomously or with minimal human intervention.
     It can be programmed to execute repetitive or complex actions with precision and accuracy.
+
