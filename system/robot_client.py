@@ -57,9 +57,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
             elif dictr["buzzer"] != "":
                 bz.play(dictr["buzzer"])
             if dictr['say'] != '':
-                mouth.setProperty('rate', 150)
-                mouth.setProperty('volume', 1)
-                mouth.setProperty('voice', "hungarian")
                 mouth.say(dictr["say"])
             if dictr['dot'] != "":
                 if dictr['dot'] == 'animation':
