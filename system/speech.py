@@ -5,7 +5,7 @@ class TTSpeech:
 
     def __init__(self):
         self.engine = pyttsx3.init()
-        self.engine.setProperty('rate', 100)
+        self.engine.setProperty('rate', 150)
         self.engine.setProperty('volume', 1)
         self.engine.setProperty('voice', "english_rp")
     
