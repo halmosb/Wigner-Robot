@@ -10,11 +10,13 @@ import json
 import os
 from control import Control
 import copy
-
+from queue import Queue
 import torch
 from torch import nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
+from statistics import mode
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -190,6 +192,7 @@ class receiveChanel() :
         self.rec_label = Label(self.root, text = f'recording = {self.is_record}')
         self.rec_label.pack(side = "left")
 
+        self.prevdir = []
         #print(self.sendCh)
  
     def close(self) :
@@ -239,8 +242,15 @@ class receiveChanel() :
             #self.pred_label.configure(text=model(transform(image.resize((64, 48))).to(device)))
             pred = ["up", "down", "left", "right","center"][int(torch.max(model(transform(image.resize((64, 48)).convert('L')).unsqueeze(0).to(device)), 1)[1].item())]
             self.pred_label.configure(text=pred)
+            if len(self.prevdir) >= settings["max_dir_queue_size"]:
+                self.prevdir.pop(0)
+            self.prevdir.append(pred)
+            print(self.prevdir)
             if Control.send_AI_dot:
-                self.sendCh.sendControl("dot", pred, False)
+                if self.prevdir.count(mode(self.prevdir)) >= 0.7*settings["max_dir_queue_size"]:
+                    self.sendCh.sendControl("dot", pred, False)
+                else:
+                    self.sendCh.sendControl("dot", "line", False)
 
 
 pressed_l = False
@@ -249,7 +259,7 @@ pressed_b = False
 def handle_key_press(event, root, sendCh, recCh):
     global pressed_l, pressed_b
     
-    if event.keysym == 'b':
+    if event.keysym.lower() == 'b':
         pressed_l = False
         if pressed_b:
             sendCh.sendControl("buzzer", "whole")
@@ -257,7 +267,7 @@ def handle_key_press(event, root, sendCh, recCh):
         else:
             pressed_b = True
         return
-    if event.keysym == 'l':
+    if event.keysym.lower() == 'l':
         pressed_b = False
         if pressed_l:
             sendCh.sendControl("dot", "animation")
@@ -265,24 +275,26 @@ def handle_key_press(event, root, sendCh, recCh):
         else:
             pressed_l = True
         return
-    if event.keysym == 'v' and pressed_b:
+    if event.keysym.lower() == 'v' and pressed_b:
         sendCh.sendControl('buzzer', 'violent')
-    if event.keysym == 'n' and pressed_b:
+    if event.keysym.lower() == 'n' and pressed_b:
         sendCh.sendControl('buzzer', 'nino')
-    if  event.keysym == 'y' and pressed_b:
+    if  event.keysym.lower() == 'y' and pressed_b:
         sendCh.sendControl('buzzer', 'supermario')
-    if event.keysym == 'c' and pressed_l:
+    if event.keysym.lower() == 'c' and pressed_l:
         sendCh.sendControl("dot", "clear")
     
     pressed_l = False
     pressed_b = False
     
     
-    if event.keysym == 'Escape' or event.keysym == 'q':
+    if event.keysym == 'Escape' or event.keysym.lower() == 'q':
         recCh.close()
         sendCh.close()
         root.destroy()
         return
+
+    
 
     if event.keysym == 'Down':
         sendCh.accelerateCar(-1)
@@ -305,22 +317,22 @@ def handle_key_press(event, root, sendCh, recCh):
         sendCh.reset_servo()
         recCh.textlabel.configure(text = f'speed = {sendCh.speed[0]}, break')
     
-    if event.keysym == "a": 
+    if event.keysym.lower() == "a": 
         sendCh.turn_servo([0,1,0])
-    if event.keysym == "d":
+    if event.keysym.lower() == "d":
         sendCh.turn_servo([0,-1,0])
-    if event.keysym == "s":
+    if event.keysym.lower() == "s":
         sendCh.turn_servo([0,0, 1])
-    if event.keysym == "w":
+    if event.keysym.lower() == "w":
         sendCh.turn_servo([0,0,-1])
-    if event.keysym == "o":
+    if event.keysym.lower() == "o":
         sendCh.turn_servo([1,0,0])
-    if event.keysym == "p":
+    if event.keysym.lower() == "p":
         sendCh.turn_servo([-1,0,0])
     
-    if event.keysym == 'm':
+    if event.keysym.lower() == 'm':
         sendCh.sendControl("measure")
-    if event.keysym == 't':
+    if event.keysym.lower() == 't':
         
         popup = Tk()
         entry = Entry(popup)
@@ -329,7 +341,7 @@ def handle_key_press(event, root, sendCh, recCh):
         entry.focus_set()
         popup.mainloop()
 
-    if event.keysym == 'u':
+    if event.keysym.lower() == 'u':
         if recCh.is_record:
             recCh.recorded_video.release()
         else:
