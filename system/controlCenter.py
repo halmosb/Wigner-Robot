@@ -245,10 +245,12 @@ class receiveChanel() :
             if len(self.prevdir) >= settings["max_dir_queue_size"]:
                 self.prevdir.pop(0)
             self.prevdir.append(pred)
-            print(self.prevdir)
             if Control.send_AI_dot:
                 if self.prevdir.count(mode(self.prevdir)) >= 0.7*settings["max_dir_queue_size"]:
                     self.sendCh.sendControl("dot", pred, False)
+                    time.sleep(0.1)
+                    if Control.arm_move_camera:
+                        self.sendCh.turn_servo([0,(1 if pred == "left" else (-1 if pred == "right" else 0)),0])
                 else:
                     self.sendCh.sendControl("dot", "line", False)
 
@@ -329,7 +331,9 @@ def handle_key_press(event, root, sendCh, recCh):
         sendCh.turn_servo([1,0,0])
     if event.keysym.lower() == "p":
         sendCh.turn_servo([-1,0,0])
-    
+    if event.keysym.lower() == "c":
+        Control.arm_move_camera = not Control.arm_move_camera
+
     if event.keysym.lower() == 'm':
         sendCh.sendControl("measure")
     if event.keysym.lower() == 't':
