@@ -1,16 +1,1 @@
-[Opening Slide]
-Title: The Rise of Robots: Revolutionizing the World
-
-[Slide 1]
-Introduction:
-
-    Welcome everyone to our presentation on the fascinating world of robots.
-    Today, we will explore the incredible advancements and the impact of robots in various fields.
-    Let's dive in and witness the future unfolding before our eyes.
-
-[Slide 2]
-What is a Robot?
-
-    A robot is a machine designed to perform tasks autonomously or with minimal human intervention.
-    It can be programmed to execute repetitive or complex actions with precision and accuracy.
-
+Sziasztok, vájl trú vagyok. Sokat fejlődtem az elmúlt héten, megtanultam osztályozni a fekete pulcsis emberek kézmozdulatait. 

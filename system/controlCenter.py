@@ -52,7 +52,7 @@ transform=transforms.Compose([
         transforms.Normalize((0.1307,), (0.3081,))
         ])
 
-model_path = '../AI/Arm/Models/0001.model'
+model_path = '../AI/Arm/Models/0005.model'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 device ="cpu"
 model = torch.jit.load(model_path).to(device)
