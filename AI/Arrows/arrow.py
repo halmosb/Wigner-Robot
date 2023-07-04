@@ -119,7 +119,7 @@ def main():
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
     
-    parser.add_argument('--epochs', type=int, default=5, metavar='N',
+    parser.add_argument('--epochs', type=int, default=2, metavar='N',
                         help='number of epochs to train (default: 14)')
     
     parser.add_argument('--lr', type=float, default=4.0, metavar='LR',
@@ -168,8 +168,8 @@ def main():
     #                   transform=transform)
     #dataset2 = datasets.MNIST('../data', train=False,
     #                   transform=transform)
-    train_loader = torch.utils.data.DataLoader(CustomDataset("Learning Data/frames", transform=transform),**train_kwargs)
-    test_loader = torch.utils.data.DataLoader(CustomDataset("Learning Data/test", transform=transform), **test_kwargs)
+    train_loader = torch.utils.data.DataLoader(CustomDataset("D:/ROBOTSTUFF/Data/AI/Arrow/frames", transform=transform),**train_kwargs)
+    test_loader = torch.utils.data.DataLoader(CustomDataset("D:/ROBOTSTUFF/Data/AI/Arrow/test", transform=transform), **test_kwargs)
 
     model = Net().to(device)
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
@@ -195,7 +195,7 @@ def main():
         
         model_scripted.save(f'Models/{index:04}.model')
 
-        comment = "Testing"
+        comment = "Arrows with generates imeges"
 
         with open('Models/parameters.csv', "a") as file:
             file.write(";".join([str(y) for y in [index,comment,args.lr,args.gamma,args.epochs,args.batch_size,args.seed,args.log_interval,"Adadelta",str(transform).replace("\n",""),1,losses,testloss,accuracy]]))
