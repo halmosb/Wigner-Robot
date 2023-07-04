@@ -52,7 +52,7 @@ transform=transforms.Compose([
         transforms.Normalize((0.1307,), (0.3081,))
         ])
 
-model_path = '../AI/Arm/Models/0005.model'
+model_path = 'D:/ROBOTSTUFF/Wigner-Robot/AI/Arrows/Models/0012.model'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 device ="cpu"
 model = torch.jit.load(model_path).to(device)
@@ -209,7 +209,7 @@ class receiveChanel() :
 
     def updateImage(self) :
         while self.run:
-            if self.receiver.dist < settings["emergency_break_distance"]:
+            if self.receiver.dist < settings["emergency_break_distance"] and self.receiver.dist != 0:
                 if not Control.breakCar and self.sendCh.params["speed"][0] > 0:
                     Control.breakCar = True
                     self.sendCh.params["buzzer"] = "nino"
@@ -231,13 +231,14 @@ class receiveChanel() :
         if self.run:
             image2 = copy.deepcopy(image)
     
-            center_x = 470
-            center_y = 40
-            radius = 20
-            color = (255, 0, 0)  # Red color
+            center_x = Control.center_x
+            center_y = Control.center_y
+            radius = Control.radius
+            color = Control.color  # color
+
             if self.is_record and int(time.time())%2 == 0:
                 draw = ImageDraw.Draw(image2)
-                draw.ellipse((center_x - radius, center_y - radius, center_x + radius, center_y + radius), fill=color)
+                draw.ellipse((center_x - radius, center_y - radius, center_x + radius, center_y + radius), fill=tuple(color))
 
             photo = ImageTk.PhotoImage(image2)
             self.imlabel.configure(image=photo)
@@ -267,7 +268,7 @@ pressed_b = False
 def handle_key_press(event, root, sendCh, recCh):
     global pressed_l, pressed_b
     
-    if event.keysym.lower() == 'b':
+    if event.keysym == 'b':
         pressed_l = False
         if pressed_b:
             sendCh.params["buzzer"] = "whole"
@@ -295,6 +296,8 @@ def handle_key_press(event, root, sendCh, recCh):
     pressed_l = False
     pressed_b = False
     
+
+
     
     if event.keysym == 'Escape' or event.keysym.lower() == 'q':
         recCh.close()
@@ -340,16 +343,43 @@ def handle_key_press(event, root, sendCh, recCh):
     if event.keysym.lower() == "c":
         Control.arm_move_camera = not Control.arm_move_camera
 
+    if event.keysym.lower() == "8":
+        Control.center_y -= Control.rec_step
+    if event.keysym.lower() == "2":
+        Control.center_y += Control.rec_step
+    if event.keysym.lower() == "4":
+        Control.center_x -= Control.rec_step
+    if event.keysym.lower() == "6":
+        Control.center_x += Control.rec_step
+
+    if event.keysym == "R":
+        Control.color[0] += Control.rec_step
+        Control.color[0] %= 256
+    if event.keysym == "G":
+        Control.color[1] += Control.rec_step
+        Control.color[1] %= 256
+    if event.keysym == "B":
+        Control.color[2] += Control.rec_step
+        Control.color[2] %= 256
+
+    if event.keysym == "plus":
+        Control.radius += Control.rec_step
+    if event.keysym == "minus":
+        Control.radius -= Control.rec_step
+
+
     if event.keysym.lower() == 'm':
         sendCh.params["US_measure"] = not sendCh.params["US_measure"]
     if event.keysym.lower() == 't':
-        
-        popup = Tk()
+        with open("speech.txt") as f:
+            sendCh.sendControl("say", f.read())
+        """popup = Tk()
         entry = Entry(popup)
         entry.bind("<Return>", lambda e: method(popup, entry, sendCh))
         entry.pack()
         entry.focus_set()
         popup.mainloop()
+        """
 
     if event.keysym.lower() == 'u':
         if recCh.is_record:
