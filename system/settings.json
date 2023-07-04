@@ -4,7 +4,7 @@
     "webcam_port" : 65533,
     "control_port" : 8100,
     "bufsize" : 1024,
-    "window_size" : 500,
+    "window_size" : 1000,
 
     "acc" : 5,
     "dec" : 20,

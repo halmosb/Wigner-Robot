@@ -30,7 +30,7 @@ transform=transforms.Compose([
 
 dataset = CustomDataset("D:/ROBOTSTUFF/Data/AI/Arrow/test", transform=transform)
 
-test_mode = "copy_wrong"
+test_mode = "normal"
 
 if test_mode == "normal":
     data_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=100, shuffle=False)

@@ -372,7 +372,9 @@ def handle_key_press(event, root, sendCh, recCh):
         sendCh.params["US_measure"] = not sendCh.params["US_measure"]
     if event.keysym.lower() == 't':
         with open("speech.txt") as f:
-            sendCh.sendControl("say", f.read())
+            sendCh.params["say"] = f.read()
+            #sendCh.sendControl("say", f.read())
+            
         """popup = Tk()
         entry = Entry(popup)
         entry.bind("<Return>", lambda e: method(popup, entry, sendCh))
