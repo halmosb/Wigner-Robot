@@ -170,7 +170,7 @@ def main():
     #                   transform=transform)
     #dataset2 = datasets.MNIST('../data', train=False,
     #                   transform=transform)
-    train_loader = torch.utils.data.DataLoader(CustomDataset("Learning Data/frames", transform=transform),**train_kwargs)
+    train_loader = torch.utils.data.DataLoader(CustomDataset("D:\ROBOTSTUFF\Data\AI\Arrow", transform=transform),**train_kwargs)
     test_loader = torch.utils.data.DataLoader(CustomDataset("Learning Data/test", transform=transform), **test_kwargs)
 
     model = Net().to(device)

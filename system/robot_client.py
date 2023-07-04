@@ -14,7 +14,7 @@ import speech
 
 mouth = speech.TTSpeech()
 servMotors = servo.Servo()
-ultar = sensor.Sensor()
+#ultar = sensor.Sensor()
 bz = buzzer.Buzzer()
 dotMatrix = dot_matrix.DotMatrix()
 
@@ -44,7 +44,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp_socket:
         dictr = json.loads(data)
         if dictr["message"] != "dot":
             print(dictr)
-        prevdictr = copy.deepcopy(dictr)
+        #prevdictr = copy.deepcopy(dictr)
         if dictr['message'] == 'q':
             break
         if dictr['message'] =='measure':
