@@ -1,13 +1,4 @@
 video/művészi_érték.mp4
 system/__pycache__/
 AI/Arm/Learning Data/
-video/robot-video-cam-1687954643.4030948.avi
-video/robot-video-cam-1687955013.870589.avi
-video/robot-video-cam-1687955212.0270646.avi
-video/robot-video-cam-1687955432.01334.avi
-video/robot-video-cam-1687955685.0258904.avi
-video/robot-video-cam-1687956786.7251923.avi
-video/robot-video-cam-1687956816.124966.avi
-video/robot-video-cam-1687956844.4946532.avi
-video/robot-video-cam-1687956871.7033124.avi
-video/robot-video-cam-1687956897.2814996.avi
+*.avi
