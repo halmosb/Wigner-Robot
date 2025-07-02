@@ -290,6 +290,8 @@ def handle_key_press(event, root, sendCh, recCh):
         sendCh.params["buzzer"] = "nino"
     if  event.keysym.lower() == 'y' and pressed_b:
         sendCh.params["buzzer"] = "supermario"
+    if event.keysym.lower() == 'e' and pressed_b:
+        sendCh.params["buzzer"] = "empty" 
     if event.keysym.lower() == 'c' and pressed_l:
         sendCh.params["dot"] = "clear"
     
